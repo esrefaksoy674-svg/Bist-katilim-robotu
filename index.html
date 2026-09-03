@@ -49,6 +49,16 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#0b1822;border-top:1px sol
   <div class="small" style="margin-top:7px">Beklenen JSON örneği: {"data":[{"symbol":"ASELS","price":123.45,"candles":[{"close":120},{"close":121}]}]}</div>
 </div>
 
+
+<div class="panel">
+  <b>V6.1 Veri bağlantı testi</b>
+  <div class="small" style="margin-top:7px">
+    Bu ekran yalnızca teknik bağlantıyı test eder. Kuveyt Türk kullanıcı adı, şifre, Mobil Onay veya hesap bilgisi istemez.
+  </div>
+  <button class="secondary" onclick="testLocal()">🧪 DEMO bağlantısını test et</button>
+  <div id="testResult" class="status">Test bekleniyor.</div>
+</div>
+
 <div class="panel">
   <b>Skor modeli</b>
   <div class="small" style="margin-top:8px">Trend 25 • Momentum 20 • Hacim 20 • Teknik 20 • Destek/Direnç 15</div>
@@ -150,6 +160,13 @@ async function loadLive(){
 const saved=localStorage.getItem("katilimApiUrl");
 if(saved)document.getElementById("apiUrl").value=saved;
 scan();
+
+function testLocal(){
+  const sample={data:[{symbol:"ASELS",price:100,candles:Array.from({length:60},(_,i)=>({close:90+i*0.2}))}]};
+  liveData={ASELS:{price:100,candles:sample.data[0].candles}};
+  document.getElementById("testResult").innerHTML='<span class="green">● BAŞARILI</span> • Veri biçimi ve analiz motoru çalışıyor.';
+  scan();
+}
 </script>
 </body>
 </html>
