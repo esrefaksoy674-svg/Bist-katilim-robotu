@@ -22,13 +22,15 @@ jobs:
           import urllib.request, json, time
 
           hisseler = [
-            "ASELS","BIMAS","TUPRS","THYAO","FROTO",
-            "TOASO","KCHOL","SAHOL","SISE","EREGL",
-            "PETKM","PGSUS","ENKAI","ULKER","MAVI",
-            "CCOLA","KOZAL","DOAS","MGROS","TCELL",
-            "TAVHL","AKSEN","ALARK","OYAKC","SOKM",
-            "TKFEN","KRDMD","HEKTS","MIATK","GESAN"
-          ]
+    "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
+    "OZATD","EKGYO","MPARK","GUBRF","UFUK",
+    "RALYH","KRDMD","PASEU","SELEC","ENJSA",
+    "EUPWR","PETKM","MAVI","SARKY","GUNDG",
+    "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
+    "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
+    "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
+    "CWENE","ARDYZ"
+]
 
           sonuc = []
 
