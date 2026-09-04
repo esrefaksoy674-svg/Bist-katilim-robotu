@@ -2,8 +2,6 @@ name: BIST veri bridge
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
@@ -19,24 +17,27 @@ jobs:
       - name: Katilim verilerini indir
         run: |
           python - <<'PY'
-          import urllib.request, json, time
+          import urllib.request
+          import json
+          import time
 
           hisseler = [
-    "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
-    "OZATD","EKGYO","MPARK","GUBRF","UFUK",
-    "RALYH","KRDMD","PASEU","SELEC","ENJSA",
-    "EUPWR","PETKM","MAVI","SARKY","GUNDG",
-    "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
-    "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
-    "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
-    "CWENE","ARDYZ"
-]
+            "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
+            "OZATD","EKGYO","MPARK","GUBRF","UFUK",
+            "RALYH","KRDMD","PASEU","SELEC","ENJSA",
+            "EUPWR","PETKM","MAVI","SARKY","GUNDG",
+            "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
+            "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
+            "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
+            "CWENE","ARDYZ"
+          ]
 
           sonuc = []
 
           for sembol in hisseler:
               try:
                   url = "https://api.asenax.com/bist/get/" + sembol
+
                   req = urllib.request.Request(
                       url,
                       headers={
@@ -82,17 +83,17 @@ jobs:
                   indent=2
               )
 
-          print("TOPLAM:", len(sonuc))
+          print("TOPLAM VERI:", len(sonuc))
           PY
 
-      - name: JSON kontrolü
+      - name: JSON kontrolu
         run: |
-          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); print('JSON OK'); print('Kayıt:',len(d.get('veri',[]))); assert len(d.get('veri',[])) > 0"
+          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); n=len(d.get('veri',[])); print('JSON OK'); print('Gelen:',n); assert n > 0"
 
       - name: Veriyi kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add veri.json
-          git diff --cached --quiet || git commit -m "Katılım verisi güncelleme"
+          git diff --cached --quiet || git commit -m "Katilim veri guncelleme"
           git push
