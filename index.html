@@ -1,68 +1,149 @@
 <!doctype html>
-<html lang="tr"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#111827">
-<title>BIST Katılım Robotu V7</title>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220">
+<title>BIST Katılım Robotu V8</title>
 <style>
-body{font-family:Arial;margin:0;background:#f3f4f6;color:#111827}header{background:#111827;color:white;padding:18px}
-main{max-width:900px;margin:auto;padding:12px}.card{background:white;border-radius:14px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #0001}
-button{border:0;border-radius:10px;padding:11px 14px;background:#111827;color:white;margin:3px}
-input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px;margin:5px 0}
-.small{font-size:12px;color:#6b7280}table{width:100%;border-collapse:collapse;font-size:13px}
-td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}
-</style></head><body>
-<header><h2>📊 BIST Katılım Robotu V7</h2><div class="small" style="color:#d1d5db">Veri → analiz → SANAL AL/SAT → rapor</div></header>
-<main>
-<div class="card"><b>Veri bağlantısı</b>
-<input id="endpoint" placeholder="JSON veri endpoint'i">
-<button onclick="saveEndpoint()">Kaydet</button><button onclick="loadData()">Güncelle</button><button onclick="demo()">DEMO</button>
-<div id="status" class="small">Hazır.</div></div>
-<div class="card"><b>Sanal portföy</b><div id="portfolio"></div>
-<button onclick="resetPaper()">Sanal hesabı sıfırla</button><button onclick="exportReport()">TXT rapor</button></div>
-<div class="card"><b>Katılım taraması</b><div id="scan"></div></div>
-<div class="card"><b>İşlem geçmişi</b><div id="trades"></div></div>
-</main>
+body{margin:0;font-family:Arial,sans-serif;background:#0b1220;color:#eef2f7}
+.wrap{max-width:900px;margin:auto;padding:14px}
+h1{font-size:22px;margin:6px 0}.muted{color:#9aa7b8;font-size:13px}
+.card{background:#121c2d;border:1px solid #26344a;border-radius:14px;padding:14px;margin:10px 0}
+button{background:#1d73e8;color:white;border:0;border-radius:10px;padding:10px 13px;margin:4px;font-weight:700}
+button.alt{background:#34445c}.stat{display:inline-block;margin:5px 12px 5px 0}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 5px;border-bottom:1px solid #26344a;text-align:right}th:first-child,td:first-child{text-align:left}
+.buy{font-weight:700}.sell{font-weight:700}.wait{color:#aab5c4}
+.good{color:#49d17d}.bad{color:#ff7272}
+#toast{position:fixed;bottom:14px;left:14px;right:14px;background:#17243a;padding:12px;border-radius:10px;display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>📈 BIST Katılım Robotu V8</h1>
+<div class="muted">Gecikmeli veri • Kâğıt işlem simülasyonu • Gerçek emir göndermez</div>
+
+<div class="card">
+  <b>Veri bağlantısı</b><br>
+  <span class="muted">Kaynak: GitHub Pages üzerindeki veri.json</span><br>
+  <button onclick="loadData()">Güncelle</button>
+  <button class="alt" onclick="resetPaper()">Kâğıt hesabını sıfırla</button>
+  <div id="status" class="muted">Hazırlanıyor...</div>
+</div>
+
+<div class="card">
+  <b>Kâğıt hesap</b>
+  <div class="stat">Bakiye: <b id="cash">-</b> TL</div>
+  <div class="stat">Pozisyon: <b id="pos">Yok</b></div>
+  <div class="stat">Toplam değer: <b id="equity">-</b> TL</div>
+  <div class="stat">İşlem: <b id="trades">0</b></div>
+</div>
+
+<div class="card">
+<b>En güçlü hisseler</b>
+<table><thead><tr><th>Hisse</th><th>Fiyat</th><th>Değ.</th><th>Skor</th><th>Sinyal</th></tr></thead>
+<tbody id="rows"></tbody></table>
+</div>
+
+<div class="card">
+<b>Son işlemler</b>
+<div id="ledger" class="muted">Henüz işlem yok.</div>
+</div>
+</div>
+<div id="toast"></div>
+
 <script>
-const katilim=["ASELS","BIMAS","TUPRS","THYAO","FROTO","TOASO","KCHOL","SAHOL","SISE","EREGL","PETKM","PGSUS","ENKAI","ULKER","MAVI","CCOLA","KOZAL","DOAS","MGROS","TCELL","TAVHL","AKSEN","ALARK","OYAKC","SOKM","TKFEN","KRDMD","HEKTS","MIATK","GESAN"];
-let state=JSON.parse(localStorage.getItem("v7paper")||"null")||{capital:100000,positions:{},trades:[],started:Date.now()};
-let series=JSON.parse(localStorage.getItem("v7series")||"{}"),quotes=[];
-const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString("tr-TR",{maximumFractionDigits:2});
-$("endpoint").value=localStorage.getItem("v7endpoint")||"";
-function save(){localStorage.setItem("v7paper",JSON.stringify(state));localStorage.setItem("v7series",JSON.stringify(series))}
-function status(x){$("status").textContent=x}
-function saveEndpoint(){localStorage.setItem("v7endpoint",$("endpoint").value.trim());status("Endpoint kaydedildi.")}
-function normalize(raw){
- let a=Array.isArray(raw)?raw:(raw.data||raw.items||raw.result||[]);
- return a.map(x=>({symbol:String(x.symbol||x.code||x.ticker||"").toUpperCase(),
- price:Number(x.price??x.last??x.close??x.lastPrice),changePct:Number(x.changePct??x.change_percent??x.change??0),
- volume:Number(x.volume??x.vol??0),time:x.time||new Date().toISOString(),
- delayed:Boolean(x.delayed??true),source:x.source||"API"}))
- .filter(x=>x.symbol&&Number.isFinite(x.price)&&x.price>0);
+const DATA_URL="./veri.json";
+const START=100000;
+let data=[], state=JSON.parse(localStorage.getItem("bist_v8_paper")||"null")||{
+ cash:START, position:null, ledger:[]
+};
+
+function money(x){return Number(x||0).toLocaleString("tr-TR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function toast(t){let e=document.getElementById("toast");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",2500)}
+function score(x){
+  let s=50;
+  let ch=Number(x.changePct||0);
+  if(ch>0)s+=Math.min(18,ch*6);
+  if(ch<0)s+=Math.max(-18,ch*6);
+  let v=Number(x.volume||0);
+  if(v>1000000)s+=8;
+  if(ch>=2)s+=8;
+  if(ch<=-2)s-=8;
+  return Math.max(0,Math.min(100,Math.round(s)));
+}
+function signal(s){
+  if(s>=72)return ["AL","buy"];
+  if(s<=42)return ["SAT","sell"];
+  return ["BEKLE","wait"];
+}
+function save(){localStorage.setItem("bist_v8_paper",JSON.stringify(state))}
+function render(){
+  document.getElementById("cash").textContent=money(state.cash);
+  document.getElementById("pos").textContent=state.position?state.position.symbol+" • "+state.position.qty+" adet":"Yok";
+  let eq=state.cash+(state.position?state.position.qty*(data.find(x=>x.symbol===state.position.symbol)?.price||state.position.price):0);
+  document.getElementById("equity").textContent=money(eq);
+  document.getElementById("trades").textContent=state.ledger.length;
+
+  let arr=data.map(x=>({...x,score:score(x)})).sort((a,b)=>b.score-a.score);
+  document.getElementById("rows").innerHTML=arr.slice(0,10).map(x=>{
+    let [sig,cl]=signal(x.score);
+    return `<tr><td><b>${x.symbol}</b></td><td>${money(x.price)}</td><td>${Number(x.changePct||0).toFixed(2)}%</td><td>${x.score}</td><td class="${cl}">${sig}</td></tr>`;
+  }).join("");
+
+  document.getElementById("ledger").innerHTML=state.ledger.length?
+    state.ledger.slice(-8).reverse().map(t=>`${t.time} — ${t.action} ${t.symbol} — ${t.qty} adet — ${money(t.price)} TL`).join("<br>"):
+    "Henüz işlem yok.";
+}
+function paperRobot(){
+  if(!data.length)return;
+  const arr=data.map(x=>({...x,score:score(x)})).sort((a,b)=>b.score-a.score);
+  const best=arr[0];
+  if(!state.position && best && best.score>=72){
+    const budget=state.cash*0.20;
+    const qty=Math.floor(budget/best.price);
+    if(qty>0){
+      state.cash-=qty*best.price;
+      state.position={symbol:best.symbol,qty,price:best.price,score:best.score};
+      state.ledger.push({time:new Date().toLocaleString("tr-TR"),action:"KAĞIT AL",symbol:best.symbol,qty,price:best.price});
+      toast("Kâğıt AL: "+best.symbol);
+    }
+  } else if(state.position){
+    const x=data.find(z=>z.symbol===state.position.symbol);
+    if(x){
+      const pnl=(x.price/state.position.price-1)*100;
+      const s=score(x);
+      if(pnl>=5 || pnl<=-3 || s<42){
+        state.cash+=state.position.qty*x.price;
+        state.ledger.push({time:new Date().toLocaleString("tr-TR"),action:"KAĞIT SAT",symbol:x.symbol,qty:state.position.qty,price:x.price});
+        toast("Kâğıt SAT: "+x.symbol);
+        state.position=null;
+      }
+    }
+  }
+  save();render();
 }
 async function loadData(){
- let ep=localStorage.getItem("v7endpoint")||"";if(!ep){status("Endpoint girin veya DEMO'ya basın.");return}
- try{status("Veri alınıyor...");let r=await fetch(ep,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
- quotes=normalize(await r.json());if(!quotes.length)throw Error("Uygun veri yok");process(quotes);
- status(quotes.length+" hisse alındı • "+new Date().toLocaleTimeString("tr-TR"))}catch(e){status("Bağlantı başarısız: "+e.message)}
+  document.getElementById("status").textContent="Veri okunuyor...";
+  try{
+    const r=await fetch(DATA_URL+"?t="+Date.now(),{cache:"no-store"});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const j=await r.json();
+    data=Array.isArray(j)?j:(j.veri||[]);
+    if(!data.length)throw new Error("veri.json boş");
+    document.getElementById("status").textContent=`${data.length} hisse alındı • Son güncelleme: ${new Date().toLocaleTimeString("tr-TR")}`;
+    paperRobot();
+  }catch(e){
+    document.getElementById("status").textContent="Veri hatası: "+e.message;
+    toast("Veri alınamadı");
+  }
 }
-function demo(){quotes=katilim.map((s,i)=>({symbol:s,price:20+i*4+Math.random()*5,changePct:-2+Math.random()*6,volume:1e6+Math.random()*9e6,time:new Date().toISOString(),delayed:true,source:"DEMO"}));process(quotes);status("DEMO veri kullanılıyor.")}
-function ema(a,n){if(!a.length)return 0;let k=2/(n+1),e=a[0];for(let i=1;i<a.length;i++)e=a[i]*k+e*(1-k);return e}
-function rsi(a,n=14){if(a.length<n+1)return 50;let g=0,l=0;for(let i=a.length-n;i<a.length;i++){let d=a[i]-a[i-1];d>0?g+=d:l-=d}return l?100-100/(1+g/l):100}
-function score(q){let s=series[q.symbol]||[];s.push(q.price);if(s.length>60)s.shift();series[q.symbol]=s;
-let e20=ema(s,20),e50=ema(s,50),rr=rsi(s),sc=50;sc+=q.changePct>0?10:-5;sc+=q.price>e20?10:-8;sc+=e20>e50?10:-6;
-sc+=rr>=50&&rr<=70?12:rr>70?2:rr<35?-8:0;sc+=q.volume?Math.min(8,q.volume/1e6):0;
-return {...q,score:Math.max(0,Math.min(100,Math.round(sc))),rsi:rr}}
-function process(data){let rows=data.filter(q=>katilim.includes(q.symbol)).map(score).sort((a,b)=>b.score-a.score);
-for(const q of rows){let p=state.positions[q.symbol];if(p){let ret=(q.price-p.price)/p.price*100;if(ret>=5||ret<=-3||q.score<55)sell(q,ret)}
-else if(q.score>=80&&Object.keys(state.positions).length<1){let qty=Math.floor(state.capital*.2/q.price);if(qty>0){state.capital-=qty*q.price;
-state.positions[q.symbol]={qty,price:q.price,time:new Date().toISOString()};state.trades.push({type:"AL",symbol:q.symbol,qty,price:q.price,time:new Date().toLocaleString("tr-TR")})}}}
-save();render(rows)}
-function sell(q,ret){let p=state.positions[q.symbol];if(!p)return;state.capital+=p.qty*q.price;state.trades.push({type:"SAT",symbol:q.symbol,qty:p.qty,price:q.price,result:ret,time:new Date().toLocaleString("tr-TR")});delete state.positions[q.symbol]}
-function render(rows){let open=Object.entries(state.positions),mv=state.capital+open.reduce((a,[s,p])=>a+p.qty*(quotes.find(q=>q.symbol===s)?.price||p.price),0);
-$("portfolio").innerHTML=`Nakit: <b>${fmt(state.capital)} TL</b> • Toplam yaklaşık: <b>${fmt(mv)} TL</b> • Açık: <b>${open.length}</b>`;
-$("scan").innerHTML="<table><tr><th>Hisse</th><th>Fiyat</th><th>Değ.</th><th>Skor</th><th>RSI</th><th>Sinyal</th></tr>"+rows.slice(0,10).map(q=>`<tr><td><b>${q.symbol}</b></td><td>${fmt(q.price)}</td><td>${fmt(q.changePct)}%</td><td>${q.score}</td><td>${fmt(q.rsi)}</td><td>${q.score>=80?"🟢 AL":q.score<55?"🔴 SAT":"🟡 BEKLE"}</td></tr>`).join("")+"</table>";
-$("trades").innerHTML=state.trades.length?"<table><tr><th>İşlem</th><th>Hisse</th><th>Adet</th><th>Fiyat</th><th>Sonuç</th></tr>"+state.trades.slice().reverse().map(t=>`<tr><td>${t.type}</td><td>${t.symbol}</td><td>${t.qty}</td><td>${fmt(t.price)}</td><td>${t.result==null?"-":fmt(t.result)+"%"}</td></tr>`).join("")+"</table>":"Henüz işlem yok."}
-function resetPaper(){if(confirm("Sanal hesap sıfırlansın mı?")){state={capital:100000,positions:{},trades:[],started:Date.now()};save();render([])}}
-function exportReport(){let t="BIST KATILIM ROBOTU V7 - SANAL RAPOR\n\nBaşlangıç: 100000 TL\nNakit: "+state.capital+" TL\n\n"+state.trades.map(x=>`${x.time} ${x.type} ${x.symbol} ${x.qty} ${x.price} TL sonuç:${x.result??"-"}%`).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download="V7-sanal-rapor.txt";a.click()}
-setInterval(()=>{if(localStorage.getItem("v7endpoint"))loadData()},300000);demo();
-</script></body></html>
+function resetPaper(){
+  if(confirm("Kâğıt hesabı 100.000 TL'ye sıfırlansın mı?")){
+    state={cash:START,position:null,ledger:[]};save();render();toast("Kâğıt hesap sıfırlandı");
+  }
+}
+render();loadData();setInterval(loadData,300000);
+</script>
+</body>
+</html>
