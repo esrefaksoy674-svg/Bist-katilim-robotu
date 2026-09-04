@@ -1,180 +1,68 @@
 <!doctype html>
-<html lang="tr">
-<head>
+<html lang="tr"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#071018"><link rel="manifest" href="manifest.json">
-<title>BIST Katılım Robotu V6.3</title>
+<link rel="manifest" href="manifest.json"><meta name="theme-color" content="#111827">
+<title>BIST Katılım Robotu V7</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#071018;color:#f4f7fa;font-family:Arial,sans-serif}
-header{padding:18px 15px 8px}h1{font-size:20px;margin:0 0 6px}.small{font-size:12px;color:#9db0be}
-.wrap{padding:8px 14px 90px}.panel,.card{background:#0e1b26;border:1px solid #183044;border-radius:14px;padding:13px;margin:10px 0}
-.title{font-weight:bold;margin:18px 3px 8px}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.sym{font-size:18px;font-weight:bold}.score{font-size:22px;font-weight:bold}
-.badge{padding:6px 8px;border-radius:8px;background:#173d2a;color:#46dc7d;font-size:11px;font-weight:bold}.watch{background:#403b17;color:#f1d65a}.weak{background:#421e26;color:#ff7b8a}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.cell{background:#0a151e;padding:8px;border-radius:8px;font-size:12px}.cell b{display:block;margin-top:4px}
-.bar{height:5px;background:#1c2d3a;border-radius:4px;margin-top:9px}.fill{height:100%;background:#46dc7d;border-radius:4px}
-button{width:100%;padding:13px;border:0;border-radius:12px;background:#46dc7d;font-weight:bold;font-size:14px;margin-top:8px}
-button.secondary{background:#173044;color:#fff}button.danger{background:#5a2028;color:#fff}
-.status{padding:9px;border-radius:9px;background:#172631;margin-top:9px;font-size:12px}
-.statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:9px}.stat{background:#0a151e;padding:10px;border-radius:9px;font-size:11px}.stat b{display:block;font-size:16px;margin-top:4px}
-table{width:100%;border-collapse:collapse;font-size:11px}th,td{text-align:left;padding:8px 4px;border-bottom:1px solid #1b3040}th{color:#9db0be}
-.input{width:100%;padding:12px;border-radius:10px;border:1px solid #284357;background:#08131c;color:#fff;margin-top:7px}
-nav{position:fixed;bottom:0;left:0;right:0;background:#0b1822;border-top:1px solid #183044;display:flex;justify-content:space-around;padding:11px;font-size:11px;color:#a9bac7}
-.green{color:#46dc7d}.yellow{color:#f1d65a}.red{color:#ff7b8a}
-</style></head>
-<body>
-<header><h1>📈 BIST KATILIM ROBOTU <span style="font-size:10px;background:#173d2a;color:#46dc7d;padding:5px 7px;border-radius:8px">V6.3</span></h1>
-<div class="small">15 dk gecikmeli veri • Katılım taraması • Sanal al/sat simülasyonu</div></header>
-<div class="wrap">
-<div class="panel">
-<div id="engine" class="green">● ANALİZ MOTORU HAZIR</div>
-<div class="small">Veri köprüsü: GitHub Actions → Asenax/Midas gecikmeli BIST verisi (yaklaşık 15 dk)</div>
-<div id="state" class="status">Veri modu: DEMO</div>
-<button onclick="fetchDelayed()">🌐 GECİKMELİ VERİYİ ÇEK</button>
-</div>
-
-<div class="panel">
-<b>🤖 Sanal otomatik al/sat</b>
-<div class="small" style="margin-top:7px">Gerçek emir göndermez. 100.000 TL sanal sermaye ile yalnızca test amaçlı işlem kaydı tutar.</div>
-<div class="statgrid">
-<div class="stat">Sermaye<b id="capital">100,000.00</b></div>
-<div class="stat">Açık pozisyon<b id="openCount">0</b></div>
-<div class="stat">Toplam sonuç<b id="pnl">0.00</b></div>
-</div>
-<button onclick="toggleBot()" id="botBtn">▶ SANAL ROBOTU BAŞLAT</button>
-</div>
-
-<div class="title">EN GÜÇLÜ 5</div><div id="list"></div>
-
-<div class="panel">
-<b>📊 İŞLEM RAPORU</b>
-<div class="small" style="margin-top:7px">Robotun yaptığı sanal alım/satım işlemleri ve sonuçları burada tutulur.</div>
-<button class="secondary" onclick="showReport()">📋 RAPORU GÖSTER</button>
-<button class="secondary" onclick="exportReport()">⬇ RAPORU İNDİR</button>
-<div id="report"></div>
-</div>
-
-<div class="panel">
-<b>Başlangıç ayarları</b>
-<div class="small">Başlangıç sanal sermayesi</div>
-<input id="startCapital" class="input" value="100000" inputmode="decimal">
-<button class="secondary" onclick="resetPaper()">♻ SANAL PORTFÖYÜ SIFIRLA</button>
-</div>
-
-<div class="small">BIST verilerinin gecikmeli olarak lisanslı/dağıtılmış kaynaklardan sağlanması gerekir. Bu sürüm gerçek para ile emir göndermez; yalnızca sanal işlem simülasyonu yapar.</div>
-</div>
-<nav><span>⌂ Ana</span><span>◉ Tarama</span><span>▣ Rapor</span><span>⚙ Ayarlar</span></nav>
-
+body{font-family:Arial;margin:0;background:#f3f4f6;color:#111827}header{background:#111827;color:white;padding:18px}
+main{max-width:900px;margin:auto;padding:12px}.card{background:white;border-radius:14px;padding:15px;margin:10px 0;box-shadow:0 2px 8px #0001}
+button{border:0;border-radius:10px;padding:11px 14px;background:#111827;color:white;margin:3px}
+input{width:100%;box-sizing:border-box;padding:11px;border:1px solid #ddd;border-radius:9px;margin:5px 0}
+.small{font-size:12px;color:#6b7280}table{width:100%;border-collapse:collapse;font-size:13px}
+td,th{padding:8px;border-bottom:1px solid #eee;text-align:left}
+</style></head><body>
+<header><h2>📊 BIST Katılım Robotu V7</h2><div class="small" style="color:#d1d5db">Veri → analiz → SANAL AL/SAT → rapor</div></header>
+<main>
+<div class="card"><b>Veri bağlantısı</b>
+<input id="endpoint" placeholder="JSON veri endpoint'i">
+<button onclick="saveEndpoint()">Kaydet</button><button onclick="loadData()">Güncelle</button><button onclick="demo()">DEMO</button>
+<div id="status" class="small">Hazır.</div></div>
+<div class="card"><b>Sanal portföy</b><div id="portfolio"></div>
+<button onclick="resetPaper()">Sanal hesabı sıfırla</button><button onclick="exportReport()">TXT rapor</button></div>
+<div class="card"><b>Katılım taraması</b><div id="scan"></div></div>
+<div class="card"><b>İşlem geçmişi</b><div id="trades"></div></div>
+</main>
 <script>
-const UNIVERSE=["AAGYO","ACSEL","AHGAZ","AHSGY","AKFYE","ALBRK","ALCTL","ALFAS","ALKA","ALKIM","ALTNY","ALVES","ANGEN","ARASE","ARDYZ","ARENA","ASELS","ATAKP","ATATP","AVPGY","AYEN","BAHKM","BAKAB","BASGZ","BAYRK","BEGYO","BERA","BESTE","BETAE","BIENY","BIMAS","BINBN","BINHO","BMSTL","BORSK","BOSSA","BRISA","BRKSN","BRLSM","BSOKE","BUCIM","BURCE","BURVA","BYDNR","CANTE","CATES","CELHA","CEMTS","CEMZY","CIMSA","CMBTN","COSMO","CVKMD","CWENE","DAPGM","DARDL","DCTTR","DENGE","DESPC","DGATE","DITAS","DMSAS","DNISI","DOFRB","DOKTA","DUNYH","EDATA","EFOR","EGGUB","EKOS","EKGYO","ELITE","EMKEL","ENJSA","EREGL","EUPWR","FONET","FORTE","FZLGY","GENIL","GEREL","GESAN","GLRMK","GOKNR","GOLDA","GOLTS","GRSEL","GRTHO","GUNDG","GUBRF","HATSN","HRKET","IHLAS","IHLGM","IZFAS","KAPLM","KARSN","KATMR","KBORU","KCAER","KIMMR","KLSER","KMPUR","KOCMT","KONKA","KONYA","KPEKS","KRDMA","KRDMB","KRDMD","KZBGY","LMKDC","LOGO","MAGEN","MAVI","MCARD","MEGMT","MERKO","MOBTL","MPARK","NETCD","NTGAZ","OBAMS","ORGE","OSTIM","OZATD","OZRDN","PAGYO","PASEU","PETKM","PKART","PLTUR","POLHO","QUAGR","RALYH","RGYAS","SANEL","SDTTR","SELEC","SELVA","SISE","SNICA","SNGYO","SUNTK","SARKY","TKFEN","TKNKA","TMPOL","TMSN","TUKAS","TUREX","TURGG","TUCLK","TUPRS","UFUK","YEOTK"];
-
-let quotes={}, history=JSON.parse(localStorage.getItem("v62_history")||"{}");
-let paper=JSON.parse(localStorage.getItem("v62_paper")||"null")||{capital:100000,positions:{},trades:[],started:null};
-let bot=false,timer=null;
-
-function num(v){if(typeof v==="number")return v; if(v==null)return NaN; return Number(String(v).replace(/\./g,"").replace(",","."))}
-function pick(o,keys){for(const k of keys){if(o&&o[k]!=null){let n=num(o[k]);if(Number.isFinite(n))return n}}return NaN}
-function normalize(rows){
- let out={};
- for(const x of rows){
-  if(!x)continue;
-  const s=String(x.symbol||x.code||x.kod||x.sembol||x.Symbol||"").toUpperCase().replace("BIST:","");
-  if(!s)continue;
-  const p=pick(x,["price","fiyat","last","son","kapanis","close","lastPrice"]);
-  const ch=pick(x,["changePercent","degisimYuzde","değişimYüzde","change","degisim","değişim","dailyChangePercent"]);
-  const vol=pick(x,["volume","hacim","vol"]);
-  if(Number.isFinite(p))out[s]={price:p,change:ch||0,volume:vol||0,raw:x};
- }
- return out;
+const katilim=["ASELS","BIMAS","TUPRS","THYAO","FROTO","TOASO","KCHOL","SAHOL","SISE","EREGL","PETKM","PGSUS","ENKAI","ULKER","MAVI","CCOLA","KOZAL","DOAS","MGROS","TCELL","TAVHL","AKSEN","ALARK","OYAKC","SOKM","TKFEN","KRDMD","HEKTS","MIATK","GESAN"];
+let state=JSON.parse(localStorage.getItem("v7paper")||"null")||{capital:100000,positions:{},trades:[],started:Date.now()};
+let series=JSON.parse(localStorage.getItem("v7series")||"{}"),quotes=[];
+const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString("tr-TR",{maximumFractionDigits:2});
+$("endpoint").value=localStorage.getItem("v7endpoint")||"";
+function save(){localStorage.setItem("v7paper",JSON.stringify(state));localStorage.setItem("v7series",JSON.stringify(series))}
+function status(x){$("status").textContent=x}
+function saveEndpoint(){localStorage.setItem("v7endpoint",$("endpoint").value.trim());status("Endpoint kaydedildi.")}
+function normalize(raw){
+ let a=Array.isArray(raw)?raw:(raw.data||raw.items||raw.result||[]);
+ return a.map(x=>({symbol:String(x.symbol||x.code||x.ticker||"").toUpperCase(),
+ price:Number(x.price??x.last??x.close??x.lastPrice),changePct:Number(x.changePct??x.change_percent??x.change??0),
+ volume:Number(x.volume??x.vol??0),time:x.time||new Date().toISOString(),
+ delayed:Boolean(x.delayed??true),source:x.source||"API"}))
+ .filter(x=>x.symbol&&Number.isFinite(x.price)&&x.price>0);
 }
-function ema(a,p){if(!a.length)return NaN;let k=2/(p+1),e=a[0];for(let i=1;i<a.length;i++)e=a[i]*k+e*(1-k);return e}
-function rsi(a,p=14){if(a.length<p+1)return 50;let g=0,l=0;for(let i=a.length-p;i<a.length;i++){let d=a[i]-a[i-1];if(d>0)g+=d;else l-=d}return l===0?100:100-100/(1+g/l)}
-function analyze(s){
- const q=quotes[s]; if(!q)return null;
- history[s]=history[s]||[]; const h=history[s]; if(!h.length||h[h.length-1]!==q.price)h.push(q.price);
- if(h.length>60)h.shift();
- const e20=ema(h,20),e50=ema(h,50),rs=rsi(h),chg=q.change;
- let trend=e20>e50?25:10, mom=rs>=55&&rs<=72?20:rs>=48?13:6;
- let daily=chg>2?20:chg>0?14:chg>-2?9:4;
- let vol=q.volume>0?10:6, score=Math.max(0,Math.min(100,trend+mom+daily+vol+15));
- return {s,price:q.price,change:chg,volume:q.volume,e20,e50,rsi:rs,score};
+async function loadData(){
+ let ep=localStorage.getItem("v7endpoint")||"";if(!ep){status("Endpoint girin veya DEMO'ya basın.");return}
+ try{status("Veri alınıyor...");let r=await fetch(ep,{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+ quotes=normalize(await r.json());if(!quotes.length)throw Error("Uygun veri yok");process(quotes);
+ status(quotes.length+" hisse alındı • "+new Date().toLocaleTimeString("tr-TR"))}catch(e){status("Bağlantı başarısız: "+e.message)}
 }
-function scan(){
- let arr=UNIVERSE.map(analyze).filter(Boolean).sort((a,b)=>b.score-a.score).slice(0,5);
- document.getElementById("list").innerHTML=arr.length?arr.map((x,i)=>{
-  let sig=x.score>=80?"AL":x.score>=60?"İZLE":"SAT/BEKLE",cls=x.score>=80?"badge":x.score>=60?"badge watch":"badge weak";
-  return `<div class="card"><div class="row"><div><div class="sym">${i+1}. ${x.s}</div><div class="small">GECİKMELİ • RSI ${x.rsi.toFixed(1)} • Değişim ${x.change.toFixed(2)}%</div></div><div style="text-align:right"><div class="${cls}">${sig}</div><div class="score">${x.score}<span class="small">/100</span></div></div></div><div class="bar"><div class="fill" style="width:${x.score}%"></div></div><div class="grid"><div class="cell">Fiyat<b>${x.price.toFixed(2)}</b></div><div class="cell">EMA20<b>${x.e20.toFixed(2)}</b></div><div class="cell">EMA50<b>${x.e50.toFixed(2)}</b></div><div class="cell">Sanal hedef<b>${(x.price*1.05).toFixed(2)}</b></div></div></div>`
- }).join(""):"<div class='card'>Henüz veri alınmadı. “Gecikmeli veriyi çek” butonuna bas.</div>";
- save();
-}
-async function fetchDelayed(){
- document.getElementById("state").textContent="Veri modu: BAĞLANIYOR…";
- try{
-  const r=await fetch("./data.json?_="+Date.now(),{cache:"no-store"});
-  if(!r.ok)throw new Error("HTTP "+r.status);
-  const j=await r.json();
-  const rows=Array.isArray(j)?j:(j.data||j.stocks||j.result||[]);
-  const n=normalize(rows);
-  if(!Object.keys(n).length)throw new Error("Veri biçimi okunamadı");
-  quotes=n;
-  document.getElementById("state").innerHTML='<span class="green">● GECİKMELİ VERİ AKTİF</span> • Yaklaşık 15 dk gecikmeli';
-  scan(); if(bot)runBot();
- }catch(e){
-  document.getElementById("state").innerHTML='<span class="red">● VERİ ALINAMADI</span> • DEMO kullanılabilir';
-  scan(); console.log(e);
- }
-}
-function runBot(){
- if(!Object.keys(quotes).length)return;
- const arr=UNIVERSE.map(analyze).filter(Boolean).sort((a,b)=>b.score-a.score);
- const now=new Date().toISOString();
- // Buy the strongest signal if no open position.
- for(const x of arr.slice(0,3)){
-   if(x.score>=80 && !paper.positions[x.s] && paper.capital>=x.price){
-     const qty=Math.max(1,Math.floor((paper.capital*0.20)/x.price));
-     const cost=qty*x.price; paper.capital-=cost;
-     paper.positions[x.s]={qty,buy:x.price,time:now,score:x.score};
-     paper.trades.push({time:now,type:"AL",symbol:x.s,qty,price:x.price,value:cost,result:null});
-     break;
-   }
- }
- // Sell on stop, target, or weak signal.
- for(const s of Object.keys(paper.positions)){
-   const p=paper.positions[s],q=quotes[s]; if(!q)continue;
-   const target=p.buy*1.05,stop=p.buy*0.97;
-   if(q.price>=target || q.price<=stop || (analyze(s)&&analyze(s).score<55)){
-     const value=p.qty*q.price, pnl=value-p.qty*p.buy; paper.capital+=value;
-     paper.trades.push({time:now,type:"SAT",symbol:s,qty:p.qty,price:q.price,value,result:pnl});
-     delete paper.positions[s];
-   }
- }
- updateStats(); save(); scan();
-}
-function toggleBot(){
- bot=!bot; document.getElementById("botBtn").textContent=bot?"⏸ SANAL ROBOTU DURDUR":"▶ SANAL ROBOTU BAŞLAT";
- if(bot){paper.started=paper.started||new Date().toISOString();fetchDelayed();timer=setInterval(fetchDelayed,300000)}
- else{clearInterval(timer);timer=null}
- save();
-}
-function updateStats(){
- document.getElementById("capital").textContent=paper.capital.toLocaleString("tr-TR",{minimumFractionDigits:2});
- document.getElementById("openCount").textContent=Object.keys(paper.positions).length;
- let pnl=paper.trades.filter(t=>t.type==="SAT").reduce((a,t)=>a+(t.result||0),0);
- document.getElementById("pnl").textContent=pnl.toLocaleString("tr-TR",{minimumFractionDigits:2});
-}
-function showReport(){
- const closed=paper.trades.filter(t=>t.type==="SAT"), wins=closed.filter(t=>t.result>0),sum=closed.reduce((a,t)=>a+(t.result||0),0);
- document.getElementById("report").innerHTML=`<div class="statgrid"><div class="stat">Kapalı işlem<b>${closed.length}</b></div><div class="stat">Kârlı<b>${wins.length}</b></div><div class="stat">Net sonuç<b>${sum.toFixed(2)} TL</b></div></div><table><tr><th>Tarih</th><th>İşlem</th><th>Hisse</th><th>Fiyat</th><th>Sonuç</th></tr>${paper.trades.slice().reverse().map(t=>`<tr><td>${new Date(t.time).toLocaleString("tr-TR")}</td><td>${t.type}</td><td>${t.symbol}</td><td>${Number(t.price).toFixed(2)}</td><td>${t.result==null?"-":Number(t.result).toFixed(2)}</td></tr>`).join("")}</table>`;
-}
-function exportReport(){
- const text=["BIST KATILIM ROBOTU V6.3 - SANAL İŞLEM RAPORU","Oluşturulma: "+new Date().toLocaleString("tr-TR"),"Başlangıç sermayesi: 100000 TL","",...paper.trades.map(t=>`${new Date(t.time).toLocaleString("tr-TR")} | ${t.type} | ${t.symbol} | ${t.qty} adet | ${Number(t.price).toFixed(2)} TL | ${t.result==null?"":Number(t.result).toFixed(2)+" TL"}`)].join("\n");
- const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download="katilim-robotu-rapor.txt";a.click();
-}
-function resetPaper(){
- if(!confirm("Sanal portföy ve işlem geçmişi silinsin mi?"))return;
- const c=Math.max(0,num(document.getElementById("startCapital").value)||100000);
- paper={capital:c,positions:{},trades:[],started:null};save();updateStats();showReport();
-}
-function save(){localStorage.setItem("v62_history",JSON.stringify(history));localStorage.setItem("v62_paper",JSON.stringify(paper))}
-updateStats();scan();
+function demo(){quotes=katilim.map((s,i)=>({symbol:s,price:20+i*4+Math.random()*5,changePct:-2+Math.random()*6,volume:1e6+Math.random()*9e6,time:new Date().toISOString(),delayed:true,source:"DEMO"}));process(quotes);status("DEMO veri kullanılıyor.")}
+function ema(a,n){if(!a.length)return 0;let k=2/(n+1),e=a[0];for(let i=1;i<a.length;i++)e=a[i]*k+e*(1-k);return e}
+function rsi(a,n=14){if(a.length<n+1)return 50;let g=0,l=0;for(let i=a.length-n;i<a.length;i++){let d=a[i]-a[i-1];d>0?g+=d:l-=d}return l?100-100/(1+g/l):100}
+function score(q){let s=series[q.symbol]||[];s.push(q.price);if(s.length>60)s.shift();series[q.symbol]=s;
+let e20=ema(s,20),e50=ema(s,50),rr=rsi(s),sc=50;sc+=q.changePct>0?10:-5;sc+=q.price>e20?10:-8;sc+=e20>e50?10:-6;
+sc+=rr>=50&&rr<=70?12:rr>70?2:rr<35?-8:0;sc+=q.volume?Math.min(8,q.volume/1e6):0;
+return {...q,score:Math.max(0,Math.min(100,Math.round(sc))),rsi:rr}}
+function process(data){let rows=data.filter(q=>katilim.includes(q.symbol)).map(score).sort((a,b)=>b.score-a.score);
+for(const q of rows){let p=state.positions[q.symbol];if(p){let ret=(q.price-p.price)/p.price*100;if(ret>=5||ret<=-3||q.score<55)sell(q,ret)}
+else if(q.score>=80&&Object.keys(state.positions).length<1){let qty=Math.floor(state.capital*.2/q.price);if(qty>0){state.capital-=qty*q.price;
+state.positions[q.symbol]={qty,price:q.price,time:new Date().toISOString()};state.trades.push({type:"AL",symbol:q.symbol,qty,price:q.price,time:new Date().toLocaleString("tr-TR")})}}}
+save();render(rows)}
+function sell(q,ret){let p=state.positions[q.symbol];if(!p)return;state.capital+=p.qty*q.price;state.trades.push({type:"SAT",symbol:q.symbol,qty:p.qty,price:q.price,result:ret,time:new Date().toLocaleString("tr-TR")});delete state.positions[q.symbol]}
+function render(rows){let open=Object.entries(state.positions),mv=state.capital+open.reduce((a,[s,p])=>a+p.qty*(quotes.find(q=>q.symbol===s)?.price||p.price),0);
+$("portfolio").innerHTML=`Nakit: <b>${fmt(state.capital)} TL</b> • Toplam yaklaşık: <b>${fmt(mv)} TL</b> • Açık: <b>${open.length}</b>`;
+$("scan").innerHTML="<table><tr><th>Hisse</th><th>Fiyat</th><th>Değ.</th><th>Skor</th><th>RSI</th><th>Sinyal</th></tr>"+rows.slice(0,10).map(q=>`<tr><td><b>${q.symbol}</b></td><td>${fmt(q.price)}</td><td>${fmt(q.changePct)}%</td><td>${q.score}</td><td>${fmt(q.rsi)}</td><td>${q.score>=80?"🟢 AL":q.score<55?"🔴 SAT":"🟡 BEKLE"}</td></tr>`).join("")+"</table>";
+$("trades").innerHTML=state.trades.length?"<table><tr><th>İşlem</th><th>Hisse</th><th>Adet</th><th>Fiyat</th><th>Sonuç</th></tr>"+state.trades.slice().reverse().map(t=>`<tr><td>${t.type}</td><td>${t.symbol}</td><td>${t.qty}</td><td>${fmt(t.price)}</td><td>${t.result==null?"-":fmt(t.result)+"%"}</td></tr>`).join("")+"</table>":"Henüz işlem yok."}
+function resetPaper(){if(confirm("Sanal hesap sıfırlansın mı?")){state={capital:100000,positions:{},trades:[],started:Date.now()};save();render([])}}
+function exportReport(){let t="BIST KATILIM ROBOTU V7 - SANAL RAPOR\n\nBaşlangıç: 100000 TL\nNakit: "+state.capital+" TL\n\n"+state.trades.map(x=>`${x.time} ${x.type} ${x.symbol} ${x.qty} ${x.price} TL sonuç:${x.result??"-"}%`).join("\n");let a=document.createElement("a");a.href=URL.createObjectURL(new Blob([t],{type:"text/plain"}));a.download="V7-sanal-rapor.txt";a.click()}
+setInterval(()=>{if(localStorage.getItem("v7endpoint"))loadData()},300000);demo();
 </script></body></html>
