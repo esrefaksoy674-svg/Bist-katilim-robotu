@@ -1,1 +1,36 @@
+name: BIST delayed data bridge
 
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository'yi al
+        uses: actions/checkout@v4
+
+      - name: Gecikmeli BIST verisini al
+        run: |
+          curl -L --fail --retry 3 --max-time 30 \
+            "https://api.asenax.com/bist/all/?_=$(date +%s)" \
+            -o data.json
+
+      - name: JSON kontrolü
+        run: |
+          python -m json.tool data.json > /dev/null
+
+      - name: Veriyi kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Update delayed BIST data"
+          git push
