@@ -14,7 +14,7 @@ jobs:
       - name: Repoyu al
         uses: actions/checkout@v4
 
-      - name: Verileri çek
+      - name: Verileri cek
         run: |
           python - <<'PY'
           import json
@@ -48,18 +48,21 @@ jobs:
                       raw = response.read().decode("utf-8")
 
                   if not raw.strip():
+                      print(symbol, "HATA: Bos cevap")
                       eksik.append(symbol)
                       continue
 
                   data = json.loads(raw)
 
                   if not isinstance(data, dict):
+                      print(symbol, "HATA: JSON nesne degil")
                       eksik.append(symbol)
                       continue
 
                   price = data.get("price")
 
                   if price is None:
+                      print(symbol, "HATA: Fiyat yok")
                       eksik.append(symbol)
                       continue
 
@@ -73,14 +76,11 @@ jobs:
                       "source": "Asenax"
                   })
 
-                                  except 
-                  Exception as e:
-                    
-                  print(symbol, "HATA:", 
-                  repr(e))
-                  
+                  print(symbol, "OK")
+
+              except Exception as e:
+                  print(symbol, "HATA:", repr(e))
                   eksik.append(symbol)
-  
 
           sonuc = {
               "guncelleme": datetime.now(timezone.utc).isoformat(),
@@ -104,25 +104,28 @@ jobs:
           with open("eksik-veri.json", "w", encoding="utf-8") as f:
               json.dump(durum, f, ensure_ascii=False, indent=2)
 
+          print("")
+          print("========== SONUC ==========")
           print("TOPLAM:", len(symbols))
-          print("VERİ GELEN:", len(veri))
-          print("VERİ EKSİK:", len(eksik))
-          print("EKSİKLER:")
+          print("VERI GELEN:", len(veri))
+          print("VERI EKSIK:", len(eksik))
+          print("EKSIKLER:", ", ".join(eksik))
+          print("===========================")
 
-          for symbol in eksik:
-              print(symbol)
+          if len(veri) == 0:
+              raise SystemExit("Hicbir hisseden veri alinamadi.")
           PY
 
-      - name: JSON kontrolü
+      - name: JSON kontrolu
         run: |
           python -m json.tool veri.json > /dev/null
           python -m json.tool eksik-veri.json > /dev/null
-          echo "JSON dosyalari gecerli."
+          echo "JSON kontrolu basarili."
 
-      - name: Değişiklikleri kaydet
+      - name: Degisiklikleri kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add veri.json eksik-veri.json
-          git diff --cached --quiet || git commit -m "Katılım veri durumunu güncelle"
+          git diff --cached --quiet || git commit -m "Katilim veri durumunu guncelle"
           git push
