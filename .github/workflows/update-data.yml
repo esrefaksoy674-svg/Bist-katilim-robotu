@@ -37,7 +37,7 @@ jobs:
 
           for symbol in symbols:
               try:
-                  url = f"https://api.asenax.com/bist/get/{symbol}"
+                  url = "https://api.asenax.com/bist/get/" + symbol
 
                   req = urllib.request.Request(
                       url,
@@ -59,16 +59,13 @@ jobs:
                       eksik.append(symbol)
                       continue
 
-                  
-yuzeysel = data.get("data",
-{}).get("hisseYuzeysel", {})
+                  ana = data.get("data") or {}
+                  yuzeysel = ana.get("hisseYuzeysel") or {}
 
-price = 
-yuzeysel.get("kapanis")
-change = 
-yuzeysel.get("yuzdedegisim")
-volume = 
-yuzeysel.get("hacimlot")
+                  price = yuzeysel.get("kapanis")
+                  change = yuzeysel.get("yuzdedegisim")
+                  volume = yuzeysel.get("hacimlot")
+
                   if price is None:
                       print(symbol, "HATA: Fiyat yok")
                       eksik.append(symbol)
@@ -76,15 +73,15 @@ yuzeysel.get("hacimlot")
 
                   veri.append({
                       "symbol": symbol,
-                       "price": price,
-                       "changePct": change,
-                       "volume": volume,
-                      "time": data.get("time"),
+                      "price": price,
+                      "changePct": change,
+                      "volume": volume,
+                      "time": datetime.now(timezone.utc).isoformat(),
                       "delayed": True,
                       "source": "Asenax"
                   })
 
-                  print(symbol, "OK")
+                  print(symbol, "OK", price)
 
               except Exception as e:
                   print(symbol, "HATA:", repr(e))
@@ -135,5 +132,5 @@ yuzeysel.get("hacimlot")
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add veri.json eksik-veri.json
-          git diff --cached --quiet || git commit -m "Katilim veri durumunu guncelle"
+          git diff --cached --quiet || git commit -m "Katilim verilerini guncelle"
           git push
