@@ -1,8 +1,8 @@
 {
-  "guncelleme": "2026-09-04T20:45:48.968848+00:00",
+  "guncelleme": "2026-09-04T20:57:27.763852+00:00",
   "toplam_hisse": 37,
-  "veri_gelen": 20,
-  "veri_eksik": 17,
+  "veri_gelen": 25,
+  "veri_eksik": 12,
   "veri": [
     {
       "symbol": "ASELS",
@@ -23,16 +23,7 @@
       "source": "Asenax"
     },
     {
-      "symbol": "EREGL",
-      "price": null,
-      "changePct": null,
-      "volume": null,
-      "time": null,
-      "delayed": true,
-      "source": "Asenax"
-    },
-    {
-      "symbol": "KTLEV",
+      "symbol": "BIMAS",
       "price": null,
       "changePct": null,
       "volume": null,
@@ -77,6 +68,15 @@
       "source": "Asenax"
     },
     {
+      "symbol": "PASEU",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
       "symbol": "SELEC",
       "price": null,
       "changePct": null,
@@ -95,7 +95,7 @@
       "source": "Asenax"
     },
     {
-      "symbol": "PETKM",
+      "symbol": "EUPWR",
       "price": null,
       "changePct": null,
       "volume": null,
@@ -105,6 +105,15 @@
     },
     {
       "symbol": "MAVI",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "SARKY",
       "price": null,
       "changePct": null,
       "volume": null,
@@ -140,6 +149,24 @@
       "source": "Asenax"
     },
     {
+      "symbol": "TKFEN",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "CVKMD",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
       "symbol": "GLRMK",
       "price": null,
       "changePct": null,
@@ -149,7 +176,7 @@
       "source": "Asenax"
     },
     {
-      "symbol": "BSOKE",
+      "symbol": "GESAN",
       "price": null,
       "changePct": null,
       "volume": null,
@@ -158,7 +185,16 @@
       "source": "Asenax"
     },
     {
-      "symbol": "MAGEN",
+      "symbol": "EFOR",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "BSOKE",
       "price": null,
       "changePct": null,
       "volume": null,
@@ -177,6 +213,15 @@
     },
     {
       "symbol": "GMTAS",
+      "price": null,
+      "changePct": null,
+      "volume": null,
+      "time": null,
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "ARDYZ",
       "price": null,
       "changePct": null,
       "volume": null,

@@ -1,11 +1,15 @@
 {
-  "guncelleme": "2026-09-04T20:45:48.969291+00:00",
+  "guncelleme": "2026-09-04T20:57:27.764203+00:00",
   "toplam_hisse": 37,
-  "veri_gelen": 20,
-  "veri_eksik": 17,
+  "veri_gelen": 25,
+  "veri_eksik": 12,
   "eksik_hisseler": [
     {
-      "symbol": "BIMAS",
+      "symbol": "EREGL",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "KTLEV",
       "durum": "bos_cevap"
     },
     {
@@ -21,15 +25,7 @@
       "durum": "bos_cevap"
     },
     {
-      "symbol": "PASEU",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "EUPWR",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "SARKY",
+      "symbol": "PETKM",
       "durum": "bos_cevap"
     },
     {
@@ -37,23 +33,11 @@
       "durum": "bos_cevap"
     },
     {
-      "symbol": "TKFEN",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "CVKMD",
-      "durum": "bos_cevap"
-    },
-    {
       "symbol": "KRDMB",
       "durum": "bos_cevap"
     },
     {
-      "symbol": "GESAN",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "EFOR",
+      "symbol": "MAGEN",
       "durum": "bos_cevap"
     },
     {
@@ -66,10 +50,6 @@
     },
     {
       "symbol": "CWENE",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "ARDYZ",
       "durum": "bos_cevap"
     }
   ]
