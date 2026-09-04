@@ -14,322 +14,138 @@ jobs:
       - name: Repoyu al
         uses: actions/checkout@v4
 
-      - name: Verileri cek
+      - name: Python kur
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Verileri çek
         run: |
           python - <<'PY'
           import json
+          import time
           import urllib.request
           from datetime import datetime, timezone
 
           symbols = [
-          "ASELS","TUPRS","BIMAS","EREGL","KTLEV","OZATD","EKGYO","MPARK",
-          "GUBRF","UFUK","RALYH","KRDMD","PASEU","SELEC","ENJSA","PETKM",
-          "EUPWR","MAVI","SARKY","GUNDG","ALKLC","CIMSA","RGYAS","TKFEN",
-          "CVKMD","KRDMB","GLRMK","GESAN","EFOR","BSOKE","MAGEN","AHGAZ",
-          "KRDMA","GENIL","ARDYZ","GMTAS","CWENE","USAK","TARKM","AKHAN",
-          "SUWEN","AAGYO","BAHKM","NETAS","ALBTN","AHSGY","ALKIM","GENTS",
-          "MEYSU","CATES","LKMNH","CELHA","TKNSA","PENTA","YIGIT","JANTS",
-          "BRLSM","CEMTS","BESTE","BORSK","FORMT","SRVGY","KOTON","KOPOL",
-          "KLSYN","EGEPO","PARSN","OZYSR","MOPAS","BURCE","HOROZ","KRSTL",
-          "UCAYM","ALCTL","YUNSA","BIENY"
+              "ASELS", "TUPRS", "BIMAS", "EREGL", "KTLEV",
+              "OZATD", "EKGYO", "MPARK", "GUBRF", "UFUK",
+              "RALYH", "KRDMD", "PASEU", "SELEC", "ENJSA",
+              "PETKM", "EUPWR", "MAVI", "SARKY", "GUNDG",
+              "ALKLC", "CIMSA", "RGYAS", "TKFEN", "CVKMD",
+              "KRDMB", "GLRMK", "GESAN", "EFOR", "BSOKE",
+              "MAGEN", "AHGAZ", "KRDMA", "GENIL", "ARDYZ",
+              "GMTAS", "CWENE", "USAK", "TARKM", "AKHAN",
+              "SUWEN", "AAGYO", "BAHKM", "NETAS", "ALBTN",
+              "AHSGY", "ALKIM", "GENTS", "MEYSU", "CATES",
+              "LKMNH", "CELHA", "TKNSA", "PENTA", "YIGIT",
+              "JANTS", "BRLSM", "CEMTS", "BESTE", "BORSK",
+              "FORMT", "SRVGY", "KOTON", "KOPOL", "KLSYN",
+              "EGEPO", "PARSN", "OZYSR", "MOPAS", "BURCE",
+              "HOROZ", "KRSTL", "UCAYM", "ALCTL", "YUNSA",
+              "BIENY"
           ]
 
-          veri = []
-          eksik = []
-
-          def kaydet(symbol, data, source):
-              if not isinstance(data, dict):
-                  return False
-
-              ana = data.get("data") or data
-              yuzeysel = {}
-
-              if isinstance(ana, dict):
-                  yuzeysel = ana.get("hisseYuzeysel") or ana
-
-              price = (
-                  yuzeysel.get("kapanis")
-                  or yuzeysel.get("price")
-                  or yuzeysel.get("last")
-                  or yuzeysel.get("close")
-              )
-
-              change = (
-                  yuzeysel.get("yuzdedegisim")
-                  or yuzeysel.get("changePct")
-                  or yuzeysel.get("change")
-              )
-
-              volume = (
-                  yuzeysel.get("hacimlot")
-                  or yuzeysel.get("volume")
-                  or yuzeysel.get("hacim")
-              )
-
-              if price is None:
-                  return False
-
-              veri.append({
-                  "symbol": symbol,
-                  "price": price,
-                  "changePct": change,
-                  "volume": volume,
-                  "time": datetime.now(timezone.utc).isoformat(),
-                  "delayed": True,
-                  "source": source
-              })
-
-              return True
-
-          # ==================================================
-          # 1. KAYNAK - ASENAX
-          # ==================================================
+          result = []
+          missing = []
 
           for symbol in symbols:
-            basarili = False
+              basarili = False
 
-            for deneme in range(1,4):
-                try:
-            url =
-            f"https://api.asenax.com/bist/get/{symbol}"
+              for deneme in range(1, 4):
+                  try:
+                      url = f"https://api.asenax.com/bist/get/{symbol}"
 
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0"}
-            )
+                      req = urllib.request.Request(
+                          url,
+                          headers={"User-Agent": "Mozilla/5.0"}
+                      )
 
-            with urllib.request.urlopen(req, timeout=20) as r:
-                raw = r.read().decode("utf-8")
+                      with urllib.request.urlopen(req, timeout=20) as r:
+                          raw = r.read().decode("utf-8")
 
-            data = json.loads(raw)
+                      data = json.loads(raw)
 
-            ana = data.get("data") or {}
-            yuzeysel = ana.get("hisseYuzeysel") or {}
+                      ana = data.get("data") or {}
+                      yuzeysel = ana.get("hisseYuzeysel") or {}
 
-            price = yuzeysel.get("kapanis")
-            change = yuzeysel.get("yuzdedegisim")
-            volume = yuzeysel.get("hacimlot")
-            time = yuzeysel.get("tarih")
+                      price = yuzeysel.get("kapanis")
+                      change = yuzeysel.get("yuzdedegisim")
+                      volume = yuzeysel.get("hacimlot")
+                      veri_zamani = yuzeysel.get("tarih")
 
-            if price is None:
-                raise ValueError("fiyat bulunamadı")
+                      if price is None:
+                          raise ValueError("fiyat bulunamadı")
 
-            result.append({
-                "symbol": symbol,
-                "price": price,
-                "changePct": change,
-                "volume": volume,
-                "time": time,
-                "delayed": True,
-                "source": "Asenax"
-            })
+                      result.append({
+                          "symbol": symbol,
+                          "price": price,
+                          "changePct": change,
+                          "volume": volume,
+                          "time": veri_zamani,
+                          "delayed": True,
+                          "source": "Asenax"
+                      })
 
-            print(f"{symbol} -> ASENAX OK | {price} | Deneme {deneme}")
-            basarili = True
-            break
+                      print(
+                          f"{symbol} -> ASENAX OK | "
+                          f"{price} | Deneme {deneme}"
+                      )
 
-        except Exception as e:
-            print(f"{symbol} -> Deneme {deneme} başarısız: {e}")
+                      basarili = True
+                      break
 
-            if deneme < 3:
-                import time as zaman
-                zaman.sleep(2)
+                  except Exception as e:
+                      print(
+                          f"{symbol} -> Deneme {deneme} başarısız: {e}"
+                      )
 
-    if not basarili:
-        missing.append(symbol)
-        print(f"{symbol} -> 3 denemede veri alınamadı")
+                      if deneme < 3:
+                          time.sleep(2)
 
-          # ==================================================
-          # 2. KAYNAK - MIDAS
-          # ==================================================
+              if not basarili:
+                  missing.append(symbol)
+                  print(f"{symbol} -> 3 denemede veri alınamadı")
 
-          if eksik:
-              print("")
-              print("MIDAS YEDEK KAYNAK BASLIYOR")
-              print("Eksik hisse:", len(eksik))
+          now = datetime.now(timezone.utc).isoformat()
 
-              try:
-                  url = "https://www.getmidas.com/wp-json/midas-api/v1/midas_table_data"
-
-                  req = urllib.request.Request(
-                      url,
-                      data=b"",
-                      headers={
-                          "User-Agent": "Mozilla/5.0",
-                          "Content-Type": "application/x-www-form-urlencoded",
-                          "Accept": "application/json"
-                      },
-                      method="POST"
-                  )
-
-                  with urllib.request.urlopen(req, timeout=30) as response:
-                      raw = response.read().decode("utf-8")
-
-                  print("MIDAS cevap uzunlugu:", len(raw))
-
-                  if raw.strip():
-                      midas = json.loads(raw)
-
-                      # Bazi cevaplar JSON string olarak donuyor.
-                      if isinstance(midas, str):
-                          try:
-                              midas = json.loads(midas)
-                          except Exception:
-                              pass
-
-                      # Listeyi bulmak icin olasi alanlar.
-                      liste = midas
-
-                      if isinstance(midas, dict):
-                          for key in [
-                              "data",
-                              "table",
-                              "stocks",
-                              "result",
-                              "rows",
-                              "items"
-                          ]:
-                              if isinstance(midas.get(key), list):
-                                  liste = midas[key]
-                                  break
-
-                      if isinstance(liste, list):
-
-                          kalan = set(eksik)
-
-                          for item in liste:
-
-                              if not isinstance(item, dict):
-                                  continue
-
-                              symbol = (
-                                  item.get("symbol")
-                                  or item.get("code")
-                                  or item.get("kod")
-                                  or item.get("ticker")
-                                  or item.get("hisse")
-                                  or item.get("stockCode")
-                              )
-
-                              if symbol is None:
-                                  continue
-
-                              symbol = str(symbol).upper().strip()
-
-                              if symbol not in kalan:
-                                  continue
-
-                              price = (
-                                  item.get("price")
-                                  or item.get("last")
-                                  or item.get("close")
-                                  or item.get("kapanis")
-                                  or item.get("fiyat")
-                                  or item.get("lastPrice")
-                              )
-
-                              change = (
-                                  item.get("changePct")
-                                  or item.get("change")
-                                  or item.get("percent")
-                                  or item.get("yuzde")
-                                  or item.get("changePercent")
-                              )
-
-                              volume = (
-                                  item.get("volume")
-                                  or item.get("vol")
-                                  or item.get("hacim")
-                                  or item.get("volumeTL")
-                              )
-
-                              if price is not None:
-
-                                  veri.append({
-                                      "symbol": symbol,
-                                      "price": price,
-                                      "changePct": change,
-                                      "volume": volume,
-                                      "time": datetime.now(timezone.utc).isoformat(),
-                                      "delayed": True,
-                                      "source": "Midas"
-                                  })
-
-                                  kalan.remove(symbol)
-
-                                  print(symbol, "-> MIDAS OK")
-
-                          eksik = list(kalan)
-
-                      else:
-                          print("MIDAS: Liste bulunamadi.")
-
-                  else:
-                      print("MIDAS: Bos cevap.")
-
-              except Exception as e:
-                  print("MIDAS HATA:", repr(e))
-
-          # ==================================================
-          # SONUCLAR
-          # ==================================================
-
-          sonuc = {
-              "guncelleme": datetime.now(timezone.utc).isoformat(),
+          output = {
+              "guncelleme": now,
               "toplam_hisse": len(symbols),
-              "veri_gelen": len(veri),
-              "veri_eksik": len(eksik),
-              "veri": veri
+              "veri_gelen": len(result),
+              "veri_eksik": len(missing),
+              "veriler": result
+          }
+
+          eksik = {
+              "guncelleme": now,
+              "toplam_hisse": len(symbols),
+              "veri_gelen": len(result),
+              "veri_eksik": len(missing),
+              "eksik_hisseler": missing
           }
 
           with open("veri.json", "w", encoding="utf-8") as f:
-              json.dump(
-                  sonuc,
-                  f,
-                  ensure_ascii=False,
-                  indent=2
-              )
-
-          durum = {
-              "guncelleme": datetime.now(timezone.utc).isoformat(),
-              "toplam_hisse": len(symbols),
-              "veri_gelen": len(veri),
-              "veri_eksik": len(eksik),
-              "eksik_hisseler": sorted(eksik)
-          }
+              json.dump(output, f, ensure_ascii=False, indent=2)
 
           with open("eksik-veri.json", "w", encoding="utf-8") as f:
-              json.dump(
-                  durum,
-                  f,
-                  ensure_ascii=False,
-                  indent=2
-              )
+              json.dump(eksik, f, ensure_ascii=False, indent=2)
 
           print("")
           print("================================")
-          print("           SONUC")
+          print(f"TOPLAM: {len(symbols)}")
+          print(f"VERİ GELEN: {len(result)}")
+          print(f"VERİ EKSİK: {len(missing)}")
           print("================================")
-          print("TOPLAM:", len(symbols))
-          print("VERI GELEN:", len(veri))
-          print("VERI EKSIK:", len(eksik))
-          print("EKSIKLER:", ", ".join(sorted(eksik)))
-          print("================================")
-
-          if len(veri) == 0:
-              raise SystemExit("Hicbir kaynaktan veri alinamadi.")
           PY
 
-      - name: JSON kontrolu
-        run: |
-          python -m json.tool veri.json > /dev/null
-          python -m json.tool eksik-veri.json > /dev/null
-          echo "JSON kontrolu basarili."
-
-      - name: Degisiklikleri kaydet
+      - name: Değişiklikleri kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
           git add veri.json eksik-veri.json
-          git diff --cached --quiet || git commit -m "Katilim verilerini iki kaynakla guncelle"
+
+          git diff --cached --quiet || git commit -m "Katılım verilerini güncelle"
+
           git push
