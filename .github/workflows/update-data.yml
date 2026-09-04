@@ -16,14 +16,13 @@ jobs:
       - name: Repository'yi al
         uses: actions/checkout@v4
 
-            - name: Gecikmeli BIST verisini al
+      - name: Gecikmeli BIST verisini al
         run: |
           curl -L --fail --retry 3 --max-time 30 \
             -A "Mozilla/5.0" \
             -H "Accept: application/json" \
             "https://api.asenax.com/bist/all" \
             -o data.json
-
           test -s data.json
 
       - name: JSON kontrolü
