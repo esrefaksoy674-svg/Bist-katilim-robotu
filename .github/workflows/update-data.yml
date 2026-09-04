@@ -16,10 +16,12 @@ jobs:
       - name: Repository'yi al
         uses: actions/checkout@v4
 
-      - name: Gecikmeli BIST verisini al
+      - name: Midas verisini al
         run: |
           curl -L --fail --retry 3 --max-time 30 \
-            "https://api.asenax.com/bist/all/?_=$(date +%s)" \
+            -X POST \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            "https://www.getmidas.com/wp-json/midas-api/v1/midas_table_data" \
             -o data.json
 
       - name: JSON kontrolü
