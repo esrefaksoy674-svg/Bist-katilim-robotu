@@ -21,7 +21,7 @@ jobs:
           curl -L --fail --retry 3 --max-time 30 \
             -A "Mozilla/5.0" \
             -H "Accept: application/json" \
-            "https://api.asenax.com/bist/all" \
+            "https://api.asenax.com/bist/all/"
             -o data.json
           test -s data.json
 
