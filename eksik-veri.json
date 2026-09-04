@@ -1,56 +1,45 @@
 {
-  "guncelleme": "2026-09-04T20:57:27.764203+00:00",
+  "guncelleme": "2026-09-04T21:08:24.960811+00:00",
   "toplam_hisse": 37,
-  "veri_gelen": 25,
-  "veri_eksik": 12,
+  "veri_gelen": 0,
+  "veri_eksik": 37,
   "eksik_hisseler": [
-    {
-      "symbol": "EREGL",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "KTLEV",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "OZATD",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "MPARK",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "KRDMD",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "PETKM",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "RGYAS",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "KRDMB",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "MAGEN",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "KRDMA",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "GENIL",
-      "durum": "bos_cevap"
-    },
-    {
-      "symbol": "CWENE",
-      "durum": "bos_cevap"
-    }
+    "ASELS",
+    "TUPRS",
+    "BIMAS",
+    "EREGL",
+    "KTLEV",
+    "OZATD",
+    "EKGYO",
+    "MPARK",
+    "GUBRF",
+    "UFUK",
+    "RALYH",
+    "KRDMD",
+    "PASEU",
+    "SELEC",
+    "ENJSA",
+    "EUPWR",
+    "PETKM",
+    "MAVI",
+    "SARKY",
+    "GUNDG",
+    "ALKLC",
+    "CIMSA",
+    "RGYAS",
+    "TKFEN",
+    "CVKMD",
+    "KRDMB",
+    "GLRMK",
+    "GESAN",
+    "EFOR",
+    "BSOKE",
+    "MAGEN",
+    "AHGAZ",
+    "KRDMA",
+    "GENIL",
+    "GMTAS",
+    "CWENE",
+    "ARDYZ"
   ]
 }
