@@ -35,60 +35,6 @@ jobs:
           veri = []
           eksik = []
 
-          def sayi(x):
-              try:
-                  if x is None or x == "":
-                      return None
-                  return float(str(x).replace(",", ".").replace("%", ""))
-              except:
-                  return None
-
-          def kaydet(symbol, data, source):
-              if not isinstance(data, dict):
-                  return False
-
-              price = (
-                  data.get("price")
-                  or data.get("last")
-                  or data.get("close")
-                  or data.get("kapanis")
-                  or data.get("fiyat")
-              )
-
-              change = (
-                  data.get("changePct")
-                  or data.get("change")
-                  or data.get("percent")
-                  or data.get("yuzde")
-                  or data.get("degisim")
-              )
-
-              volume = (
-                  data.get("volume")
-                  or data.get("hacim")
-                  or data.get("vol")
-              )
-
-              price = sayi(price)
-              change = sayi(change)
-              volume = sayi(volume)
-
-              if price is None:
-                  return False
-
-              veri.append({
-                  "symbol": symbol,
-                  "price": price,
-                  "changePct": change,
-                  "volume": volume,
-                  "time": datetime.now(timezone.utc).isoformat(),
-                  "delayed": True,
-                  "source": source
-              })
-
-              return True
-
-          # 1. KAYNAK: ASENAX
           for symbol in symbols:
               try:
                   url = f"https://api.asenax.com/bist/get/{symbol}"
@@ -98,79 +44,38 @@ jobs:
                       headers={"User-Agent": "Mozilla/5.0"}
                   )
 
-                  with urllib.request.urlopen(req, timeout=15) as r:
-                      raw = r.read().decode("utf-8")
+                  with urllib.request.urlopen(req, timeout=15) as response:
+                      raw = response.read().decode("utf-8")
+
+                  if not raw.strip():
+                      eksik.append(symbol)
+                      continue
 
                   data = json.loads(raw)
 
-                  if kaydet(symbol, data, "Asenax"):
-                      print(symbol, "-> Asenax")
-                  else:
+                  if not isinstance(data, dict):
                       eksik.append(symbol)
+                      continue
+
+                  price = data.get("price")
+
+                  if price is None:
+                      eksik.append(symbol)
+                      continue
+
+                  veri.append({
+                      "symbol": symbol,
+                      "price": data.get("price"),
+                      "changePct": data.get("changePct"),
+                      "volume": data.get("volume"),
+                      "time": data.get("time"),
+                      "delayed": True,
+                      "source": "Asenax"
+                  })
 
               except Exception:
                   eksik.append(symbol)
 
-          # 2. KAYNAK: MIDAS
-          # Asenax'tan gelmeyen hisseler için toplu veri denenir.
-          if eksik:
-              try:
-                  url = "https://www.getmidas.com/wp-json/midas-api/v1/midas_table_data"
-
-                  req = urllib.request.Request(
-                      url,
-                      data=b"",
-                      headers={
-                          "User-Agent": "Mozilla/5.0",
-                          "Content-Type": "application/x-www-form-urlencoded"
-                      },
-                      method="POST"
-                  )
-
-                  with urllib.request.urlopen(req, timeout=30) as r:
-                      raw = r.read().decode("utf-8")
-
-                  midas = json.loads(raw)
-
-                  if isinstance(midas, str):
-                      midas = json.loads(midas)
-
-                  if isinstance(midas, dict):
-                      for key in ["data", "table", "stocks", "result"]:
-                          if isinstance(midas.get(key), list):
-                              midas = midas[key]
-                              break
-
-                  if isinstance(midas, list):
-                      kalan = set(eksik)
-
-                      for item in midas:
-                          if not isinstance(item, dict):
-                              continue
-
-                          symbol = (
-                              item.get("symbol")
-                              or item.get("code")
-                              or item.get("kod")
-                              or item.get("hisse")
-                          )
-
-                          if not symbol:
-                              continue
-
-                          symbol = str(symbol).upper().strip()
-
-                          if symbol in kalan:
-                              if kaydet(symbol, item, "Midas"):
-                                  print(symbol, "-> Midas")
-                                  kalan.remove(symbol)
-
-                      eksik = list(kalan)
-
-              except Exception as e:
-                  print("Midas kaynagi kullanilamadi:", str(e))
-
-          # SONUÇ
           sonuc = {
               "guncelleme": datetime.now(timezone.utc).isoformat(),
               "toplam_hisse": len(symbols),
@@ -193,16 +98,13 @@ jobs:
           with open("eksik-veri.json", "w", encoding="utf-8") as f:
               json.dump(durum, f, ensure_ascii=False, indent=2)
 
-          print("")
-          print("========== SONUC ==========")
           print("TOPLAM:", len(symbols))
           print("VERİ GELEN:", len(veri))
           print("VERİ EKSİK:", len(eksik))
-          print("EKSİKLER:", ", ".join(eksik))
-          print("============================")
+          print("EKSİKLER:")
 
-          if len(veri) == 0:
-              raise SystemExit("Hiçbir kaynaktan veri alınamadı.")
+          for symbol in eksik:
+              print(symbol)
           PY
 
       - name: JSON kontrolü
@@ -216,5 +118,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add veri.json eksik-veri.json
-          git diff --cached --quiet || git commit -m "Katılım verilerini iki kaynaktan güncelle"
+          git diff --cached --quiet || git commit -m "Katılım veri durumunu güncelle"
           git push
