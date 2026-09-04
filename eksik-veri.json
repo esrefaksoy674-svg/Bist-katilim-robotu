@@ -1,0 +1,76 @@
+{
+  "guncelleme": "2026-09-04T20:45:48.969291+00:00",
+  "toplam_hisse": 37,
+  "veri_gelen": 20,
+  "veri_eksik": 17,
+  "eksik_hisseler": [
+    {
+      "symbol": "BIMAS",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "OZATD",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "MPARK",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "KRDMD",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "PASEU",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "EUPWR",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "SARKY",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "RGYAS",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "TKFEN",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "CVKMD",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "KRDMB",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "GESAN",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "EFOR",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "KRDMA",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "GENIL",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "CWENE",
+      "durum": "bos_cevap"
+    },
+    {
+      "symbol": "ARDYZ",
+      "durum": "bos_cevap"
+    }
+  ]
+}
