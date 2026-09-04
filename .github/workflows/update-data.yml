@@ -1,8 +1,6 @@
-name: BIST delayed data bridge
+name: BIST veri bridge
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -13,27 +11,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repository'yi al
+      - name: Depoyu al
         uses: actions/checkout@v4
 
-      - name: Gecikmeli BIST verisini al
+      - name: BIST verisini indir
         run: |
-          curl -L --fail --retry 3 --max-time 30 \
-            -A "Mozilla/5.0" \
-            -H "Accept: application/json" \
-            "https://api.asenax.com/bist/all/"
-            -o data.json
-          test -s data.json
+          python - <<'PY'
+          import json
+          import urllib.request
 
-      - name: JSON kontrolü
-        run: |
-          python -m json.tool data.json > /dev/null
+          url = "https://api.asenax.com/bist/all/"
+
+          req = urllib.request.Request(
+              url,
+              headers={
+                  "User-Agent": "Mozilla/5.0",
+                  "Accept": "application/json"
+              }
+          )
+
+          with urllib.request.urlopen(req, timeout=30) as r:
+              raw = r.read()
+
+          if not raw:
+              raise SystemExit("Veri kaynağı boş cevap verdi.")
+
+          data = json.loads(raw)
+
+          if isinstance(data, list):
+              data = {"veri": data}
+
+          if not isinstance(data, dict):
+              raise SystemExit("Geçersiz JSON biçimi.")
+
+          if not data.get("veri"):
+              raise SystemExit("Veri listesi boş.")
+
+          with open("veri.json", "w", encoding="utf-8") as f:
+              json.dump(
+                  data,
+                  f,
+                  ensure_ascii=False,
+                  separators=(",", ":")
+              )
+
+          print("Veri başarıyla alındı.")
+          print("Kayıt sayısı:", len(data["veri"]))
+          PY
 
       - name: Veriyi kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data.json
+          git add veri.json
           git diff --cached --quiet && exit 0
-          git commit -m "Update delayed BIST data"
+          git commit -m "BIST veri güncelleme"
           git push
+          curl -L
