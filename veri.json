@@ -1,7 +1,179 @@
 {
-  "guncelleme": "2026-09-04T21:08:24.960422+00:00",
+  "guncelleme": "2026-09-04T21:41:53.597560+00:00",
   "toplam_hisse": 37,
-  "veri_gelen": 0,
-  "veri_eksik": 37,
-  "veri": []
+  "veri_gelen": 19,
+  "veri_eksik": 18,
+  "veri": [
+    {
+      "symbol": "ASELS",
+      "price": 388.25,
+      "changePct": 2.1,
+      "volume": 33219537.0,
+      "time": "2026-09-04T21:41:13.477127+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "TUPRS",
+      "price": 388.5,
+      "changePct": -0.64,
+      "volume": 23202707.0,
+      "time": "2026-09-04T21:41:14.542859+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "EREGL",
+      "price": 37.2,
+      "changePct": 1.69,
+      "volume": 83901860.0,
+      "time": "2026-09-04T21:41:16.588501+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "MPARK",
+      "price": 421.0,
+      "changePct": 1.2,
+      "volume": 67466.0,
+      "time": "2026-09-04T21:41:20.768568+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "UFUK",
+      "price": 1650.0,
+      "changePct": 10.0,
+      "volume": 1168011.0,
+      "time": "2026-09-04T21:41:22.880173+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "KRDMD",
+      "price": 43.52,
+      "changePct": 1.26,
+      "volume": 29544947.0,
+      "time": "2026-09-04T21:41:24.842798+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "PASEU",
+      "price": 158.4,
+      "changePct": -9.95,
+      "volume": 6997724.0,
+      "time": "2026-09-04T21:41:26.024444+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "SELEC",
+      "price": 356.0,
+      "changePct": 1.71,
+      "volume": 4666149.0,
+      "time": "2026-09-04T21:41:27.110006+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "ENJSA",
+      "price": 113.7,
+      "changePct": -0.7,
+      "volume": 2411902.0,
+      "time": "2026-09-04T21:41:29.078077+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "MAVI",
+      "price": 36.22,
+      "changePct": 0.33,
+      "volume": 4103965.0,
+      "time": "2026-09-04T21:41:31.741135+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "ALKLC",
+      "price": 451.25,
+      "changePct": 2.73,
+      "volume": 822634.0,
+      "time": "2026-09-04T21:41:34.304203+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "CIMSA",
+      "price": 43.78,
+      "changePct": 0.78,
+      "volume": 6461430.0,
+      "time": "2026-09-04T21:41:36.124224+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "TKFEN",
+      "price": 210.8,
+      "changePct": 1.1,
+      "volume": 4652725.0,
+      "time": "2026-09-04T21:41:39.848668+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "GESAN",
+      "price": 60.5,
+      "changePct": -9.97,
+      "volume": 90815914.0,
+      "time": "2026-09-04T21:41:42.804474+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "BSOKE",
+      "price": 21.1,
+      "changePct": -3.83,
+      "volume": 3843842.0,
+      "time": "2026-09-04T21:41:45.296485+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "MAGEN",
+      "price": 33.48,
+      "changePct": -1.24,
+      "volume": 1723694.0,
+      "time": "2026-09-04T21:41:46.063305+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "AHGAZ",
+      "price": 39.04,
+      "changePct": 0.51,
+      "volume": 3702332.0,
+      "time": "2026-09-04T21:41:46.826297+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "GMTAS",
+      "price": 45.98,
+      "changePct": 2.82,
+      "volume": 1807159.0,
+      "time": "2026-09-04T21:41:52.088575+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    },
+    {
+      "symbol": "CWENE",
+      "price": 31.24,
+      "changePct": 1.49,
+      "volume": 62783058.0,
+      "time": "2026-09-04T21:41:52.809988+00:00",
+      "delayed": true,
+      "source": "Asenax"
+    }
+  ]
 }
