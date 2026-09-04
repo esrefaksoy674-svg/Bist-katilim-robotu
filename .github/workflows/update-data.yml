@@ -73,8 +73,10 @@ jobs:
                       "source": "Asenax"
                   })
 
-              except Exception:
+                            except Exception as e:
+                  print(symbol, "HATA:", repr(e))
                   eksik.append(symbol)
+  
 
           sonuc = {
               "guncelleme": datetime.now(timezone.utc).isoformat(),
