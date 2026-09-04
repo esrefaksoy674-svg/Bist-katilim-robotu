@@ -2,6 +2,8 @@ name: BIST veri bridge
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "*/5 * * * *"
 
 permissions:
   contents: write
@@ -14,12 +16,10 @@ jobs:
       - name: Depoyu al
         uses: actions/checkout@v4
 
-      - name: Katilim hisselerini indir
+      - name: Katilim verilerini indir
         run: |
           python - <<'PY'
-          import urllib.request
-          import json
-          import time
+          import urllib.request, json, time
 
           hisseler = [
             "ASELS","BIMAS","TUPRS","THYAO","FROTO",
@@ -44,35 +44,33 @@ jobs:
                   )
 
                   with urllib.request.urlopen(req, timeout=30) as r:
-                      data = json.loads(r.read().decode("utf-8"))
+                      raw = r.read()
 
-                  yuzeysel = data.get("data", {}).get("hisseYuzeysel", {})
+                  d = json.loads(raw.decode("utf-8"))
+                  y = d.get("data", {}).get("hisseYuzeysel", {})
 
-                  fiyat = yuzeysel.get("satis")
-                  if not fiyat:
-                      fiyat = yuzeysel.get("alis")
-
-                  degisim = yuzeysel.get("yuzdedegisim", 0)
-                  hacim = yuzeysel.get("hacimlot", 0)
-                  tarih = yuzeysel.get("tarih", "")
+                  fiyat = y.get("satis") or y.get("alis")
 
                   if fiyat is not None:
                       sonuc.append({
                           "symbol": sembol,
                           "price": float(fiyat),
-                          "changePct": float(degisim or 0),
-                          "volume": float(hacim or 0),
-                          "time": tarih,
+                          "changePct": float(y.get("yuzdedegisim") or 0),
+                          "volume": float(y.get("hacimlot") or 0),
+                          "time": y.get("tarih", ""),
                           "delayed": True,
                           "source": "Asenax"
                       })
 
-                  print(sembol, "OK", fiyat)
+                      print(sembol, "OK", fiyat)
 
               except Exception as e:
-                  print(sembol, "HATA:", e)
+                  print(sembol, "HATA", e)
 
               time.sleep(1)
+
+          if not sonuc:
+              raise SystemExit("Hic veri alinamadi")
 
           with open("veri.json", "w", encoding="utf-8") as f:
               json.dump(
@@ -82,17 +80,17 @@ jobs:
                   indent=2
               )
 
-          print("TOPLAM VERI:", len(sonuc))
+          print("TOPLAM:", len(sonuc))
           PY
 
       - name: JSON kontrolü
         run: |
-          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); print('JSON OK'); print('Kayıt:',len(d['veri']))"
+          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); print('JSON OK'); print('Kayıt:',len(d.get('veri',[]))); assert len(d.get('veri',[])) > 0"
 
       - name: Veriyi kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add veri.json
-          git diff --cached --quiet || git commit -m "Katılım hisseleri veri güncelleme"
+          git diff --cached --quiet || git commit -m "Katılım verisi güncelleme"
           git push
