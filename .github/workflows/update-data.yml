@@ -73,8 +73,12 @@ jobs:
                       "source": "Asenax"
                   })
 
-                            except Exception as e:
-                  print(symbol, "HATA:", repr(e))
+                                  except 
+                  Exception as e:
+                    
+                  print(symbol, "HATA:", 
+                  repr(e))
+                  
                   eksik.append(symbol)
   
 
