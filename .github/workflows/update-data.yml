@@ -14,18 +14,18 @@ jobs:
       - name: Depoyu al
         uses: actions/checkout@v4
 
-      - name: BIST verisini indir
+      - name: ASELS verisini indir
         run: |
-          python -c "import urllib.request; u='https://api.asenax.com/bist/all/'; r=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'}),timeout=30); open('veri.json','wb').write(r.read())"
+          python -c "import urllib.request; u='https://api.asenax.com/bist/get/ASELS'; r=urllib.request.urlopen(urllib.request.Request(u,headers={'User-Agent':'Mozilla/5.0','Accept':'application/json'}),timeout=30); open('test.json','wb').write(r.read())"
 
       - name: JSON kontrolü
         run: |
-          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); print('JSON OK'); print('Kayıt:',len(d.get('veri',d if isinstance(d,list) else [])));"
+          python -c "import json; d=json.load(open('test.json',encoding='utf-8')); print('JSON OK'); print(d)"
 
-      - name: Veriyi kaydet
+      - name: Sonucu kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add veri.json
-          git diff --cached --quiet || git commit -m "BIST veri güncelleme"
+          git add test.json
+          git diff --cached --quiet || git commit -m "BIST veri bağlantı testi"
           git push
