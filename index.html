@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#071018"><link rel="manifest" href="manifest.json">
-<title>BIST Katılım Robotu V6.2</title>
+<title>BIST Katılım Robotu V6.3</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#071018;color:#f4f7fa;font-family:Arial,sans-serif}
 header{padding:18px 15px 8px}h1{font-size:20px;margin:0 0 6px}.small{font-size:12px;color:#9db0be}
@@ -23,12 +23,12 @@ nav{position:fixed;bottom:0;left:0;right:0;background:#0b1822;border-top:1px sol
 .green{color:#46dc7d}.yellow{color:#f1d65a}.red{color:#ff7b8a}
 </style></head>
 <body>
-<header><h1>📈 BIST KATILIM ROBOTU <span style="font-size:10px;background:#173d2a;color:#46dc7d;padding:5px 7px;border-radius:8px">V6.2</span></h1>
+<header><h1>📈 BIST KATILIM ROBOTU <span style="font-size:10px;background:#173d2a;color:#46dc7d;padding:5px 7px;border-radius:8px">V6.3</span></h1>
 <div class="small">15 dk gecikmeli veri • Katılım taraması • Sanal al/sat simülasyonu</div></header>
 <div class="wrap">
 <div class="panel">
 <div id="engine" class="green">● ANALİZ MOTORU HAZIR</div>
-<div class="small">Veri kaynağı: Asenax/Midas kaynaklı gecikmeli BIST verisi (yaklaşık 15 dk)</div>
+<div class="small">Veri köprüsü: GitHub Actions → Asenax/Midas gecikmeli BIST verisi (yaklaşık 15 dk)</div>
 <div id="state" class="status">Veri modu: DEMO</div>
 <button onclick="fetchDelayed()">🌐 GECİKMELİ VERİYİ ÇEK</button>
 </div>
@@ -110,7 +110,7 @@ function scan(){
 async function fetchDelayed(){
  document.getElementById("state").textContent="Veri modu: BAĞLANIYOR…";
  try{
-  const r=await fetch("https://api.asenax.com/bist/all/?_="+Date.now(),{cache:"no-store"});
+  const r=await fetch("./data.json?_="+Date.now(),{cache:"no-store"});
   if(!r.ok)throw new Error("HTTP "+r.status);
   const j=await r.json();
   const rows=Array.isArray(j)?j:(j.data||j.stocks||j.result||[]);
@@ -167,7 +167,7 @@ function showReport(){
  document.getElementById("report").innerHTML=`<div class="statgrid"><div class="stat">Kapalı işlem<b>${closed.length}</b></div><div class="stat">Kârlı<b>${wins.length}</b></div><div class="stat">Net sonuç<b>${sum.toFixed(2)} TL</b></div></div><table><tr><th>Tarih</th><th>İşlem</th><th>Hisse</th><th>Fiyat</th><th>Sonuç</th></tr>${paper.trades.slice().reverse().map(t=>`<tr><td>${new Date(t.time).toLocaleString("tr-TR")}</td><td>${t.type}</td><td>${t.symbol}</td><td>${Number(t.price).toFixed(2)}</td><td>${t.result==null?"-":Number(t.result).toFixed(2)}</td></tr>`).join("")}</table>`;
 }
 function exportReport(){
- const text=["BIST KATILIM ROBOTU V6.2 - SANAL İŞLEM RAPORU","Oluşturulma: "+new Date().toLocaleString("tr-TR"),"Başlangıç sermayesi: 100000 TL","",...paper.trades.map(t=>`${new Date(t.time).toLocaleString("tr-TR")} | ${t.type} | ${t.symbol} | ${t.qty} adet | ${Number(t.price).toFixed(2)} TL | ${t.result==null?"":Number(t.result).toFixed(2)+" TL"}`)].join("\n");
+ const text=["BIST KATILIM ROBOTU V6.3 - SANAL İŞLEM RAPORU","Oluşturulma: "+new Date().toLocaleString("tr-TR"),"Başlangıç sermayesi: 100000 TL","",...paper.trades.map(t=>`${new Date(t.time).toLocaleString("tr-TR")} | ${t.type} | ${t.symbol} | ${t.qty} adet | ${Number(t.price).toFixed(2)} TL | ${t.result==null?"":Number(t.result).toFixed(2)+" TL"}`)].join("\n");
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:"text/plain"}));a.download="katilim-robotu-rapor.txt";a.click();
 }
 function resetPaper(){
