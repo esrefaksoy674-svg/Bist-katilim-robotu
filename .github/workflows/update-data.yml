@@ -59,8 +59,16 @@ jobs:
                       eksik.append(symbol)
                       continue
 
-                  price = data.get("price")
+                  
+yuzeysel = data.get("data",
+{}).get("hisseYuzeysel", {})
 
+price = 
+yuzeysel.get("kapanis")
+change = 
+yuzeysel.get("yuzdedegisim")
+volume = 
+yuzeysel.get("hacimlot")
                   if price is None:
                       print(symbol, "HATA: Fiyat yok")
                       eksik.append(symbol)
@@ -68,9 +76,9 @@ jobs:
 
                   veri.append({
                       "symbol": symbol,
-                      "price": data.get("price"),
-                      "changePct": data.get("changePct"),
-                      "volume": data.get("volume"),
+                       "price": price,
+                       "changePct": change,
+                       "volume": volume,
                       "time": data.get("time"),
                       "delayed": True,
                       "source": "Asenax"
