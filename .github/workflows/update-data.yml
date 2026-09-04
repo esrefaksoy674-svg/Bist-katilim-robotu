@@ -11,89 +11,113 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Depoyu al
+      - name: Repoyu al
         uses: actions/checkout@v4
 
-      - name: Katilim verilerini indir
+      - name: Verileri çek
         run: |
           python - <<'PY'
-          import urllib.request
           import json
-          import time
+          import urllib.request
+          import urllib.error
+          from datetime import datetime, timezone
 
-          hisseler = [
-            "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
-            "OZATD","EKGYO","MPARK","GUBRF","UFUK",
-            "RALYH","KRDMD","PASEU","SELEC","ENJSA",
-            "EUPWR","PETKM","MAVI","SARKY","GUNDG",
-            "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
-            "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
-            "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
-            "CWENE","ARDYZ"
+          symbols = [
+              "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
+              "OZATD","EKGYO","MPARK","GUBRF","UFUK",
+              "RALYH","KRDMD","PASEU","SELEC","ENJSA",
+              "EUPWR","PETKM","MAVI","SARKY","GUNDG",
+              "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
+              "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
+              "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
+              "CWENE","ARDYZ"
           ]
 
-          sonuc = []
+          veri = []
+          eksik = []
 
-          for sembol in hisseler:
+          for symbol in symbols:
+              url = f"https://api.asenax.com/bist/get/{symbol}"
+
               try:
-                  url = "https://api.asenax.com/bist/get/" + sembol
-
                   req = urllib.request.Request(
                       url,
-                      headers={
-                          "User-Agent": "Mozilla/5.0",
-                          "Accept": "application/json"
-                      }
+                      headers={"User-Agent": "Mozilla/5.0"}
                   )
 
-                  with urllib.request.urlopen(req, timeout=30) as r:
-                      raw = r.read()
+                  with urllib.request.urlopen(req, timeout=15) as response:
+                      raw = response.read().decode("utf-8")
 
-                  d = json.loads(raw.decode("utf-8"))
-                  y = d.get("data", {}).get("hisseYuzeysel", {})
-
-                  fiyat = y.get("satis") or y.get("alis")
-
-                  if fiyat is not None:
-                      sonuc.append({
-                          "symbol": sembol,
-                          "price": float(fiyat),
-                          "changePct": float(y.get("yuzdedegisim") or 0),
-                          "volume": float(y.get("hacimlot") or 0),
-                          "time": y.get("tarih", ""),
-                          "delayed": True,
-                          "source": "Asenax"
+                  if not raw.strip():
+                      eksik.append({
+                          "symbol": symbol,
+                          "durum": "bos_cevap"
                       })
+                      continue
 
-                      print(sembol, "OK", fiyat)
+                  data = json.loads(raw)
+
+                  veri.append({
+                      "symbol": symbol,
+                      "price": data.get("price"),
+                      "changePct": data.get("changePct"),
+                      "volume": data.get("volume"),
+                      "time": data.get("time"),
+                      "delayed": True,
+                      "source": "Asenax"
+                  })
 
               except Exception as e:
-                  print(sembol, "HATA", e)
+                  eksik.append({
+                      "symbol": symbol,
+                      "durum": "veri_alinamadi",
+                      "hata": str(e)
+                  })
 
-              time.sleep(1)
-
-          if not sonuc:
-              raise SystemExit("Hic veri alinamadi")
+          sonuc = {
+              "guncelleme": datetime.now(timezone.utc).isoformat(),
+              "toplam_hisse": len(symbols),
+              "veri_gelen": len(veri),
+              "veri_eksik": len(eksik),
+              "veri": veri
+          }
 
           with open("veri.json", "w", encoding="utf-8") as f:
-              json.dump(
-                  {"veri": sonuc},
-                  f,
-                  ensure_ascii=False,
-                  indent=2
-              )
+              json.dump(sonuc, f, ensure_ascii=False, indent=2)
 
-          print("TOPLAM VERI:", len(sonuc))
+          durum = {
+              "guncelleme": datetime.now(timezone.utc).isoformat(),
+              "toplam_hisse": len(symbols),
+              "veri_gelen": len(veri),
+              "veri_eksik": len(eksik),
+              "eksik_hisseler": eksik
+          }
+
+          with open("eksik-veri.json", "w", encoding="utf-8") as f:
+              json.dump(durum, f, ensure_ascii=False, indent=2)
+
+          print("TOPLAM:", len(symbols))
+          print("VERİ GELEN:", len(veri))
+          print("VERİ EKSİK:", len(eksik))
+          print("EKSİKLER:")
+
+          for item in eksik:
+              print(item["symbol"])
+
+          if len(veri) == 0:
+              raise SystemExit("Hiçbir hisseden veri alınamadı.")
           PY
 
-      - name: JSON kontrolu
+      - name: JSON kontrolü
         run: |
-          python -c "import json; d=json.load(open('veri.json',encoding='utf-8')); n=len(d.get('veri',[])); print('JSON OK'); print('Gelen:',n); assert n > 0"
+          python -m json.tool veri.json > /dev/null
+          python -m json.tool eksik-veri.json > /dev/null
+          echo "JSON dosyaları geçerli."
 
-      - name: Veriyi kaydet
+      - name: Değişiklikleri kaydet
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add veri.json
-          git diff --cached --quiet || git commit -m "Katilim veri guncelleme"
+          git add veri.json eksik-veri.json
+          git diff --cached --quiet || git commit -m "Katılım veri durumunu güncelle"
           git push
