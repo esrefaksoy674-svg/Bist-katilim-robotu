@@ -22,14 +22,16 @@ jobs:
           from datetime import datetime, timezone
 
           symbols = [
-              "ASELS","TUPRS","BIMAS","EREGL","KTLEV",
-              "OZATD","EKGYO","MPARK","GUBRF","UFUK",
-              "RALYH","KRDMD","PASEU","SELEC","ENJSA",
-              "EUPWR","PETKM","MAVI","SARKY","GUNDG",
-              "ALKLC","CIMSA","RGYAS","TKFEN","CVKMD",
-              "KRDMB","GLRMK","GESAN","EFOR","BSOKE",
-              "MAGEN","AHGAZ","KRDMA","GENIL","GMTAS",
-              "CWENE","ARDYZ"
+          "ASELS","TUPRS","BIMAS","EREGL","KTLEV","OZATD","EKGYO","MPARK",
+          "GUBRF","UFUK","RALYH","KRDMD","PASEU","SELEC","ENJSA","PETKM",
+          "EUPWR","MAVI","SARKY","GUNDG","ALKLC","CIMSA","RGYAS","TKFEN",
+          "CVKMD","KRDMB","GLRMK","GESAN","EFOR","BSOKE","MAGEN","AHGAZ",
+          "KRDMA","GENIL","ARDYZ","GMTAS","CWENE","USAK","TARKM","AKHAN",
+          "SUWEN","AAGYO","BAHKM","NETAS","ALBTN","AHSGY","ALKIM","GENTS",
+          "MEYSU","CATES","LKMNH","CELHA","TKNSA","PENTA","YIGIT","JANTS",
+          "BRLSM","CEMTS","BESTE","BORSK","FORMT","SRVGY","KOTON","KOPOL",
+          "KLSYN","EGEPO","PARSN","OZYSR","MOPAS","BURCE","HOROZ","KRSTL",
+          "UCAYM","ALCTL","YUNSA","BIENY"
           ]
 
           veri = []
