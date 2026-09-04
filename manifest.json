@@ -1,9 +1,9 @@
 {
-  "name": "BIST Katılım Robotu V7",
-  "short_name": "Katılım Robotu",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#f3f4f6",
-  "theme_color": "#111827",
-  "lang": "tr"
+  "name":"BIST Katılım Robotu V8",
+  "short_name":"BIST Robot",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#0b1220",
+  "theme_color":"#0b1220",
+  "lang":"tr"
 }
