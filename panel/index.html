@@ -13,7 +13,7 @@ label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}input{wi
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:1px solid #34445d;background:#0b1422;border-radius:12px;padding:13px;text-align:center;cursor:pointer;font-weight:750}
 .choice.active.al{border-color:var(--green);background:#123629;color:var(--green)}.choice.active.sat{border-color:var(--red);background:#3a202a;color:var(--red)}
 button{border:0;border-radius:12px;padding:14px 18px;background:var(--blue);color:#071225;font-weight:850;font-size:16px;cursor:pointer;width:100%;margin-top:14px}button:disabled{opacity:.55}
-.hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.5}.hidden{display:none}.status{color:var(--muted);margin-top:13px;white-space:pre-wrap}
+.hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.5}.hidden{display:none}.status{color:var(--muted);margin-top:13px;white-space:pre-wrap;line-height:1.55}.statusbox{display:flex;align-items:flex-start;gap:10px;background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:13px}.statusbox[hidden]{display:none}.statuscopy{min-width:0}.statushead{font-weight:800;color:var(--text)}.statusdetail{font-size:13px;color:var(--muted);margin-top:4px}.spinner{width:18px;height:18px;flex:0 0 18px;border:2px solid #34445d;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-top:2px}@keyframes spin{to{transform:rotate(360deg)}}
 .topline{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.price{font-size:32px;font-weight:850}.tag{padding:7px 10px;border-radius:99px;background:#243249;color:#dce7f8;font-size:12px;font-weight:800}.verdict{font-size:20px;font-weight:850;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.metric{background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:12px}.metric small{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:17px;margin-top:4px;overflow-wrap:anywhere}
 h2{font-size:18px;margin:0 0 12px}.comment{line-height:1.6}.footer{color:var(--muted);font-size:12px;line-height:1.6;margin:18px 2px}
@@ -26,7 +26,7 @@ h2{font-size:18px;margin:0 0 12px}.comment{line-height:1.6}.footer{color:var(--m
 <section class="card">
 <div class="formgrid"><div><label for="symbol">BIST hisse kodu</label><input id="symbol" placeholder="Örn. TUPRS" maxlength="15" autocomplete="off"></div>
 <div><label>İşlem yönü</label><div class="row"><div id="buy" class="choice active al" role="button" tabindex="0">↗ Alım</div><div id="sell" class="choice sat" role="button" tabindex="0">↘ Satım</div></div></div></div>
-<button id="run">Analizi başlat</button><div id="status" class="status" role="status"></div>
+<button id="run">Analizi başlat</button><div id="statusbox" class="statusbox" role="status" aria-live="polite" hidden><span id="spinner" class="spinner" aria-hidden="true"></span><div class="statuscopy"><div id="statushead" class="statushead"></div><div id="statusdetail" class="statusdetail"></div></div></div><div id="status" class="status" role="status"></div>
 <div class="hint">Satım seçeneği elde bulunan hisseyi satma/azaltma değerlendirmesidir; açığa satış varsayılmaz.</div>
 </section>
 <section id="result" class="card hidden" aria-live="polite">
@@ -48,8 +48,9 @@ $('run').addEventListener('click',runAnalysis);
 function fmt(v){return v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₺'}
 function metric(label,value){return '<div class="metric"><small>'+label+'</small><strong>'+value+'</strong></div>'}
 async function runAnalysis(){
- const symbol=$('symbol').value.trim().toUpperCase();if(!symbol){$('status').textContent='Lütfen hisse kodu girin.';return}
- $('run').disabled=true;$('status').textContent='Veri alınıyor ve göstergeler hesaplanıyor…';$('result').classList.add('hidden');
+ const symbol=$('symbol').value.trim().toUpperCase();if(!symbol){$('statusbox').hidden=true;$('status').textContent='Lütfen hisse kodu girin.';return}
+ $('run').disabled=true;$('status').textContent='';$('statusbox').hidden=false;$('spinner').hidden=false;$('statushead').textContent='Analiz başladı: '+symbol;$('statusdetail').textContent='Sunucuya istek gönderildi. Önce gün içi veri, alınamazsa günlük veri deneniyor. Geçen süre: 0 sn.';$('result').classList.add('hidden');
+ const started=Date.now();const elapsedTimer=setInterval(()=>{const seconds=Math.floor((Date.now()-started)/1000);$('statusdetail').textContent='Veri sağlayıcısının yanıtı bekleniyor; gün içi veri başarısız olursa günlük veri denenir. Geçen süre: '+seconds+' sn.';},1000);
  try{
   const res=await fetch('/api/analyze?symbol='+encodeURIComponent(symbol)+'&side='+side);
   const data=await res.json();if(!res.ok)throw new Error(data.detail||'Analiz alınamadı.');
@@ -61,8 +62,8 @@ async function runAnalysis(){
   $('levels').innerHTML=levels.map(x=>metric(x[0],fmt(x[1]))).join('');
   $('metrics').innerHTML=[['RSI (14)',fmt(data.rsi)],['MACD',fmt(data.macd)],['MACD sinyali',fmt(data.macd_signal)],['20 günlük ortalama',fmt(data.sma20)],['50 günlük ortalama',fmt(data.sma50)],['Hacim / 20g ort.',fmt(data.volume)+' / '+fmt(data.avg_volume20)],['Olumlu sinyal',data.bullish_score+'/5'],['Olumsuz sinyal',data.bearish_score+'/5']].map(x=>metric(x[0],x[1])).join('');
   $('timestamp').textContent='Son veri zamanı: '+data.timestamp+' • Sunucu zamanı: '+new Date(data.server_time).toLocaleString('tr-TR')+' • Kaynak: '+data.source+'\n'+data.disclaimer;
-  $('status').textContent='Analiz tamamlandı.';$('result').classList.remove('hidden');
- }catch(e){$('status').textContent='Hata: '+e.message+'\nVeri alınamazsa sistem yanlış fiyat uydurmaz; yeniden deneyin.'}
- finally{$('run').disabled=false}
+  $('statusbox').hidden=false;$('spinner').hidden=true;$('statushead').textContent='Analiz tamamlandı';$('statusdetail').textContent='Kullanılan veri: '+data.data_mode+'. Sonuç ve göstergeler aşağıda.';$('result').classList.remove('hidden');
+ }catch(e){$('statusbox').hidden=false;$('spinner').hidden=true;$('statushead').textContent='Analiz başarısız';$('statusdetail').textContent='Hata ayrıntısı: '+e.message+' Veri alınamadıysa biraz sonra tekrar deneyin; fiyat uydurulmadı.'}
+ finally{clearInterval(elapsedTimer);$('run').disabled=false}
 }
 </script></body></html>
