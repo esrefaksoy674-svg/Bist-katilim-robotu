@@ -14,7 +14,7 @@ label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}input{wi
 .choice.active.al{border-color:var(--green);background:#123629;color:var(--green)}.choice.active.sat{border-color:var(--red);background:#3a202a;color:var(--red)}
 button{border:0;border-radius:12px;padding:14px 18px;background:var(--blue);color:#071225;font-weight:850;font-size:16px;cursor:pointer;width:100%;margin-top:14px}button:disabled{opacity:.55}
 .hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.5}.hidden{display:none}.status{color:var(--muted);margin-top:13px;white-space:pre-wrap;line-height:1.55}.statusbox{display:flex;align-items:flex-start;gap:10px;background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:13px}.statusbox[hidden]{display:none}.statuscopy{min-width:0}.statushead{font-weight:800;color:var(--text)}.statusdetail{font-size:13px;color:var(--muted);margin-top:4px}.spinner{width:18px;height:18px;flex:0 0 18px;border:2px solid #34445d;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin-top:2px}@keyframes spin{to{transform:rotate(360deg)}}
-.topline{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.price{font-size:32px;font-weight:850}.tag{padding:7px 10px;border-radius:99px;background:#243249;color:#dce7f8;font-size:12px;font-weight:800}.verdict{font-size:20px;font-weight:850;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}
+.topline{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.price{font-size:32px;font-weight:850}.tag{padding:7px 10px;border-radius:99px;background:#243249;color:#dce7f8;font-size:12px;font-weight:800}.verdict{font-size:20px;font-weight:850;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}.decision{border:1px solid var(--line);border-radius:14px;padding:15px;margin:16px 0;background:#0b1422}.decision-label{font-size:12px;color:var(--muted);font-weight:800;letter-spacing:.08em}.decision-value{font-size:25px;font-weight:900;margin-top:4px}.decision-meaning{line-height:1.55;margin-top:6px;color:var(--text)}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.metric{background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:12px}.metric small{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:17px;margin-top:4px;overflow-wrap:anywhere}
 h2{font-size:18px;margin:0 0 12px}.comment{line-height:1.6}.footer{color:var(--muted);font-size:12px;line-height:1.6;margin:18px 2px}
 @media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}.formgrid button{margin:0}.card{padding:22px}}
@@ -31,7 +31,7 @@ h2{font-size:18px;margin:0 0 12px}.comment{line-height:1.6}.footer{color:var(--m
 </section>
 <section id="result" class="card hidden" aria-live="polite">
 <div class="topline"><div><div id="name" class="brand"></div><div id="price" class="price"></div><div id="change"></div></div><span id="mode" class="tag"></span></div>
-<div id="verdict" class="verdict"></div><p id="comment" class="comment"></p>
+<div class="decision"><div class="decision-label">GENEL ANALİZ SONUCU</div><div id="overall" class="decision-value">—</div><div id="meaning" class="decision-meaning"></div></div><div class="brand">SEÇİLEN YÖNÜN DEĞERLENDİRMESİ</div><div id="verdict" class="verdict"></div><p id="comment" class="comment"></p>
 <h2>Fiyat seviyeleri</h2><div id="levels" class="grid"></div>
 <h2 style="margin-top:20px">Teknik göstergeler</h2><div id="metrics" class="grid"></div>
 <div id="timestamp" class="hint"></div>
@@ -57,7 +57,12 @@ async function runAnalysis(){
   $('name').textContent=data.symbol+' • '+(side==='al'?'ALIM ANALİZİ':'SATIM ANALİZİ');$('price').textContent=fmt(data.price);
   $('change').textContent=(data.change_pct>=0?'+':'')+fmt(data.change_pct).replace(' ₺','')+'% günlük değişim';
   $('change').className=data.change_pct>=0?'green':'red';$('mode').textContent=data.data_mode;
-  $('verdict').textContent=data.verdict;$('verdict').className='verdict '+(side==='al'?'green':'red');$('comment').textContent=data.comment;
+  let overall='BEKLE', meaning='Olumlu ve olumsuz göstergeler arasında net üstünlük yok. Yeni fiyat hareketi veya daha güçlü sinyal beklenebilir.', overallClass='';
+  if(data.bullish_score>=3 && data.bullish_score>data.bearish_score && !(data.rsi!==null && data.rsi>=70)){overall='AL SİNYALİ';meaning='Olumlu teknik sinyaller daha güçlü. Bu, kesin yükseliş anlamına gelmez; destek, direnç ve zarar-kes seviyesi birlikte değerlendirilmelidir.';overallClass='green';}
+  else if(data.bearish_score>=3 && data.bearish_score>data.bullish_score){overall='SAT / AZALT SİNYALİ';meaning='Olumsuz teknik sinyaller daha güçlü. Eldeki hisse için risk azaltma değerlendirilebilir; tek başına kesin satış talimatı değildir.';overallClass='red';}
+  else if(data.rsi!==null && data.rsi>=70){overall='BEKLE — AŞIRI ALIM RİSKİ';meaning='RSI 70 veya üzerinde; fiyat kısa vadede aşırı alım bölgesinde olabilir. Yeni alımda temkinli olmak ve göstergelerin sakinleşmesini beklemek düşünülebilir.';}
+  $('overall').textContent=overall;$('overall').className='decision-value '+overallClass;$('meaning').textContent=meaning;
+  $('verdict').textContent=data.verdict;$('verdict').className='verdict '+(data.verdict.includes('SAT')?'red':data.verdict.includes('ALIM İÇİN UYGUN')?'green':'');$('comment').textContent=data.comment;
   const levels=side==='al'?[['Olası giriş',data.entry],['Zarar-kes seviyesi',data.stop],['Hedef 1',data.target1],['Hedef 2',data.target2],['Destek',data.support],['Direnç',data.resistance]]:[['Yakın aşağı seviye',data.target1],['İkinci aşağı seviye',data.target2],['Destek',data.support],['Direnç',data.resistance]];
   $('levels').innerHTML=levels.map(x=>metric(x[0],fmt(x[1]))).join('');
   $('metrics').innerHTML=[['RSI (14)',fmt(data.rsi)],['MACD',fmt(data.macd)],['MACD sinyali',fmt(data.macd_signal)],['20 günlük ortalama',fmt(data.sma20)],['50 günlük ortalama',fmt(data.sma50)],['Hacim / 20g ort.',fmt(data.volume)+' / '+fmt(data.avg_volume20)],['Olumlu sinyal',data.bullish_score+'/5'],['Olumsuz sinyal',data.bearish_score+'/5']].map(x=>metric(x[0],x[1])).join('');
