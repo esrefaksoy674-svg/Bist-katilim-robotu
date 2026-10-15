@@ -44,6 +44,7 @@ function setSide(s){side=s;$('buy').classList.toggle('active',s==='al');$('sell'
 $('buy').onclick=()=>setSide('al');$('sell').onclick=()=>setSide('sat');
 for(const id of ['buy','sell'])$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(id).click()}};
 $('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')runAnalysis()});
+$('run').addEventListener('click',runAnalysis);
 function fmt(v){return v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₺'}
 function metric(label,value){return '<div class="metric"><small>'+label+'</small><strong>'+value+'</strong></div>'}
 async function runAnalysis(){
