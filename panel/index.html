@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hisse Analiz Paneli</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1220;--card:#131e30;--line:#29384e;--muted:#9eafc7;--text:#edf3fb;--green:#32d296;--red:#ff737b;--blue:#76a9ff}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(140deg,#0b1220,#101b2d);color:var(--text);font:16px system-ui,Segoe UI,sans-serif}
+main{max-width:900px;margin:0 auto;padding:22px 15px 40px}.brand{color:var(--blue);font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+h1{font-size:clamp(27px,5vw,39px);margin:7px 0}.sub{color:var(--muted);line-height:1.55;margin:0 0 22px}
+.card{background:rgba(19,30,48,.96);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px;box-shadow:0 12px 30px #0002}
+label{display:block;color:var(--muted);font-size:13px;margin-bottom:8px}input{width:100%;background:#0b1422;color:var(--text);border:1px solid #34445d;border-radius:11px;padding:13px;font-size:17px;text-transform:uppercase;outline:none}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.choice{border:1px solid #34445d;background:#0b1422;border-radius:12px;padding:13px;text-align:center;cursor:pointer;font-weight:750}
+.choice.active.al{border-color:var(--green);background:#123629;color:var(--green)}.choice.active.sat{border-color:var(--red);background:#3a202a;color:var(--red)}
+button{border:0;border-radius:12px;padding:14px 18px;background:var(--blue);color:#071225;font-weight:850;font-size:16px;cursor:pointer;width:100%;margin-top:14px}button:disabled{opacity:.55}
+.hint{color:var(--muted);font-size:12px;margin-top:10px;line-height:1.5}.hidden{display:none}.status{color:var(--muted);margin-top:13px;white-space:pre-wrap}
+.topline{display:flex;justify-content:space-between;align-items:start;gap:12px;flex-wrap:wrap}.price{font-size:32px;font-weight:850}.tag{padding:7px 10px;border-radius:99px;background:#243249;color:#dce7f8;font-size:12px;font-weight:800}.verdict{font-size:20px;font-weight:850;margin-top:8px}.green{color:var(--green)}.red{color:var(--red)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}.metric{background:#0b1422;border:1px solid var(--line);border-radius:12px;padding:12px}.metric small{display:block;color:var(--muted);font-size:12px}.metric strong{display:block;font-size:17px;margin-top:4px;overflow-wrap:anywhere}
+h2{font-size:18px;margin:0 0 12px}.comment{line-height:1.6}.footer{color:var(--muted);font-size:12px;line-height:1.6;margin:18px 2px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:end}.formgrid button{margin:0}.card{padding:22px}}
+</style>
+</head>
+<body><main>
+<div class="brand">BIST • TEKNİK ANALİZ</div><h1>Hisse Analiz Paneli</h1>
+<p class="sub">Hisse kodunu yaz, işlem yönünü seç. Alım ve eldeki hisseyi satma değerlendirmeleri birbirinden ayrı hesaplanır.</p>
+<section class="card">
+<div class="formgrid"><div><label for="symbol">BIST hisse kodu</label><input id="symbol" placeholder="Örn. TUPRS" maxlength="15" autocomplete="off"></div>
+<div><label>İşlem yönü</label><div class="row"><div id="buy" class="choice active al" role="button" tabindex="0">↗ Alım</div><div id="sell" class="choice sat" role="button" tabindex="0">↘ Satım</div></div></div></div>
+<button id="run">Analizi başlat</button><div id="status" class="status" role="status"></div>
+<div class="hint">Satım seçeneği elde bulunan hisseyi satma/azaltma değerlendirmesidir; açığa satış varsayılmaz.</div>
+</section>
+<section id="result" class="card hidden" aria-live="polite">
+<div class="topline"><div><div id="name" class="brand"></div><div id="price" class="price"></div><div id="change"></div></div><span id="mode" class="tag"></span></div>
+<div id="verdict" class="verdict"></div><p id="comment" class="comment"></p>
+<h2>Fiyat seviyeleri</h2><div id="levels" class="grid"></div>
+<h2 style="margin-top:20px">Teknik göstergeler</h2><div id="metrics" class="grid"></div>
+<div id="timestamp" class="hint"></div>
+</section>
+<p class="footer">Veri kaynağı: Yahoo Finance. Veri sağlayıcısı gün içi veriyi sunamazsa günlük veriye geçilir ve bu durum gösterilir. Göstergeler teknik değerlendirme içindir; yatırım tavsiyesi veya getiri garantisi değildir.</p>
+</main>
+<script>
+let side='al';const $=id=>document.getElementById(id);
+function setSide(s){side=s;$('buy').classList.toggle('active',s==='al');$('sell').classList.toggle('active',s==='sat')}
+$('buy').onclick=()=>setSide('al');$('sell').onclick=()=>setSide('sat');
+for(const id of ['buy','sell'])$(id).onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(id).click()}};
+$('symbol').addEventListener('keydown',e=>{if(e.key==='Enter')runAnalysis()});
+function fmt(v){return v===null||v===undefined||!Number.isFinite(Number(v))?'—':Number(v).toLocaleString('tr-TR',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₺'}
+function metric(label,value){return '<div class="metric"><small>'+label+'</small><strong>'+value+'</strong></div>'}
+async function runAnalysis(){
+ const symbol=$('symbol').value.trim().toUpperCase();if(!symbol){$('status').textContent='Lütfen hisse kodu girin.';return}
+ $('run').disabled=true;$('status').textContent='Veri alınıyor ve göstergeler hesaplanıyor…';$('result').classList.add('hidden');
+ try{
+  const res=await fetch('/api/analyze?symbol='+encodeURIComponent(symbol)+'&side='+side);
+  const data=await res.json();if(!res.ok)throw new Error(data.detail||'Analiz alınamadı.');
+  $('name').textContent=data.symbol+' • '+(side==='al'?'ALIM ANALİZİ':'SATIM ANALİZİ');$('price').textContent=fmt(data.price);
+  $('change').textContent=(data.change_pct>=0?'+':'')+fmt(data.change_pct).replace(' ₺','')+'% günlük değişim';
+  $('change').className=data.change_pct>=0?'green':'red';$('mode').textContent=data.data_mode;
+  $('verdict').textContent=data.verdict;$('verdict').className='verdict '+(side==='al'?'green':'red');$('comment').textContent=data.comment;
+  const levels=side==='al'?[['Olası giriş',data.entry],['Zarar-kes seviyesi',data.stop],['Hedef 1',data.target1],['Hedef 2',data.target2],['Destek',data.support],['Direnç',data.resistance]]:[['Yakın aşağı seviye',data.target1],['İkinci aşağı seviye',data.target2],['Destek',data.support],['Direnç',data.resistance]];
+  $('levels').innerHTML=levels.map(x=>metric(x[0],fmt(x[1]))).join('');
+  $('metrics').innerHTML=[['RSI (14)',fmt(data.rsi)],['MACD',fmt(data.macd)],['MACD sinyali',fmt(data.macd_signal)],['20 günlük ortalama',fmt(data.sma20)],['50 günlük ortalama',fmt(data.sma50)],['Hacim / 20g ort.',fmt(data.volume)+' / '+fmt(data.avg_volume20)],['Olumlu sinyal',data.bullish_score+'/5'],['Olumsuz sinyal',data.bearish_score+'/5']].map(x=>metric(x[0],x[1])).join('');
+  $('timestamp').textContent='Son veri zamanı: '+data.timestamp+' • Sunucu zamanı: '+new Date(data.server_time).toLocaleString('tr-TR')+' • Kaynak: '+data.source+'\n'+data.disclaimer;
+  $('status').textContent='Analiz tamamlandı.';$('result').classList.remove('hidden');
+ }catch(e){$('status').textContent='Hata: '+e.message+'\nVeri alınamazsa sistem yanlış fiyat uydurmaz; yeniden deneyin.'}
+ finally{$('run').disabled=false}
+}
+</script></body></html>
